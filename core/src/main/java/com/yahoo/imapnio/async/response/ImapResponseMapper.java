@@ -1,5 +1,6 @@
 package com.yahoo.imapnio.async.response;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,9 +13,11 @@ import javax.annotation.Nullable;
 import javax.mail.Folder;
 
 import com.sun.mail.iap.ParsingException;
+import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.iap.Response;
 import com.sun.mail.imap.AppendUID;
 import com.sun.mail.imap.CopyUID;
+import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.IMAPResponse;
 import com.sun.mail.imap.protocol.ListInfo;
 import com.sun.mail.imap.protocol.MailboxInfo;
@@ -25,6 +28,7 @@ import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
 import com.yahoo.imapnio.async.data.IdResult;
 import com.yahoo.imapnio.async.data.ListInfoList;
 import com.yahoo.imapnio.async.data.SearchResult;
+import com.yahoo.imapnio.async.data.StoreResult;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException.FailureType;
 
@@ -62,13 +66,14 @@ public class ImapResponseMapper {
      * @param content list of IMAPResponse obtained from server.
      * @param valueType class name that this api will convert to.
      * @return the serialized object
-     * @throws ParsingException if underlying input contains invalid content of type for the returned type
      * @throws ImapAsyncClientException when target class to covert to is not supported
+     * @throws ProtocolException if underlying input contains invalid content of type for the returned type
+     * @throws IOException when fetch response cannot be casted to the expected item
      */
     @SuppressWarnings("unchecked")
     @Nonnull
     public <T> T readValue(@Nonnull final IMAPResponse[] content, @Nonnull final Class<T> valueType)
-            throws ImapAsyncClientException, ParsingException {
+            throws ImapAsyncClientException, ProtocolException, IOException {
         if (valueType == Capability.class) {
             return (T) parser.parseToCapabilities(content);
         }
@@ -95,6 +100,9 @@ public class ImapResponseMapper {
         }
         if (valueType == SearchResult.class) {
             return (T) parser.parseToSearchResult(content);
+        }
+        if (valueType == StoreResult.class) {
+            return (T) parser.parseToStoreResult(content);
         }
         throw new ImapAsyncClientException(FailureType.UNKNOWN_PARSE_RESULT_TYPE);
     }
@@ -174,7 +182,7 @@ public class ImapResponseMapper {
 
             // case 2. from server greeting. EX: OK [CAPABILITY IMAP4rev1 SASL-IR AUTH=PLAIN] IMAP4rev1 Hello
             byte b;
-            while ((b = r.readByte()) > 0 && b != (byte) '[') {
+            while ((b = r.readByte()) > 0 && b != (byte) L_BRACKET) {
                 // eat chars till [
             }
             if (b == 0) { // left bracket not found
@@ -380,7 +388,7 @@ public class ImapResponseMapper {
         /**
          * Parses the ID responses to a @{code IdResult} object.
          *
-         * @param r the list of responses from ID command, the input responses array should contain the tagged/final one
+         * @param ir the list of responses from ID command, the input responses array should contain the tagged/final one
          * @return IdResult object constructed based on the given IMAPResponse array
          * @throws ParsingException when encountering parsing exception
          * @throws ImapAsyncClientException when input value is not valid
@@ -443,6 +451,8 @@ public class ImapResponseMapper {
             }
             final List<Long> v = new ArrayList<Long>(); // will always return a non-null array
 
+            Long modSeq = null;
+
             // Grab all SEARCH responses
             long num;
             for (final IMAPResponse sr : ir) {
@@ -451,10 +461,53 @@ public class ImapResponseMapper {
                     while ((num = sr.readLong()) != -1) {
                         v.add(Long.valueOf(num));
                     }
+                    if (sr.readByte() == '(') {
+                        final String s = sr.readAtom();
+                        if (s.equalsIgnoreCase("MODSEQ")) {
+                            modSeq = sr.readLong();
+                        }
+                    }
                 }
             }
 
-            return new SearchResult(v);
+            return new SearchResult(v, modSeq);
+        }
+
+        @Nonnull
+        private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
+            if (ir.length < 1) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final Response taggedResponse = ir[ir.length - 1];
+            if (!taggedResponse.isOK()) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final List<FetchResponse> fetchResponses = new ArrayList<>();
+
+            List<Long> msgs = new ArrayList<>();
+            Long highestModSeq = null;
+            for (final IMAPResponse sr: ir) {
+                if (sr.isOK()) {
+                    sr.skipSpaces();
+                    if (sr.readByte() != (byte) L_BRACKET) {
+                        continue;
+                    }
+                    String s = sr.readAtom();
+                    if (s.equalsIgnoreCase("HIGHESTMODSEQ")) {
+                        highestModSeq = sr.readLong();
+                    } else if (s.equalsIgnoreCase("MODIFIED")) {
+                        s = sr.readAtom();
+                        s = s.replace("[", "");
+                        for (String str: s.split(",")) {
+                            msgs.add(Long.valueOf(str));
+                        }
+                    }
+                } else {
+                    fetchResponses.add(new FetchResponse(sr));
+                }
+            }
+
+            return new StoreResult(highestModSeq, fetchResponses, msgs);
         }
     }
 }
