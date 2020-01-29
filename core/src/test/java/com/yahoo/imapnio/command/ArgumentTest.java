@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.mail.Flags;
 import javax.mail.internet.MimeUtility;
-
 import javax.mail.search.AndTerm;
 import javax.mail.search.BodyTerm;
 import javax.mail.search.FlagTerm;
@@ -119,7 +118,7 @@ public class ArgumentTest {
         final SearchTerm[] searchTerms = {bodyTerm, bodyTerm, bodyTerm};
         final OrTerm orTerm = new OrTerm(searchTerms);
         final Argument args = new Argument();
-        args.append(searchSeq.generateSequence(orTerm, null));
+        args.append(searchSeq.generateSequence(orTerm));
 
         final String searchStr = args.toString();
         Assert.assertEquals(searchStr, "OR OR BODY test BODY test BODY test", "result mismatched.");

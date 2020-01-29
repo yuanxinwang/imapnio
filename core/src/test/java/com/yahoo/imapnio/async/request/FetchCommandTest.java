@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.mail.search.SearchException;
 
 import com.yahoo.imapnio.async.data.ChangedSince;
-import javafx.scene.control.TextFormatter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -124,8 +123,6 @@ public class FetchCommandTest {
      * Tests getCommandLine method using MessageNumberSet[], macro, and changed since the given modification sequence.
      *
      * @throws ImapAsyncClientException will not throw
-     * @throws SearchException will not throw
-     * @throws IOException will not throw
      * @throws IllegalAccessException will not throw
      * @throws IllegalArgumentException will not throw
      */
@@ -162,28 +159,6 @@ public class FetchCommandTest {
         final ChangedSince changedSince = new ChangedSince(1L);
         final ImapRequest cmd = new FetchCommand(msgsets, DATA_ITEMS, changedSince);
         Assert.assertEquals(cmd.getCommandLine(), "FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
-
-        cmd.cleanup();
-        // Verify if cleanup happened correctly.
-        for (final Field field : fieldsToCheck) {
-            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
-        }
-    }
-
-    /**
-     * Tests getCommandLine method.
-     *
-     * @throws ImapAsyncClientException will not throw
-     * @throws IllegalAccessException will not throw
-     * @throws IllegalArgumentException will not throw
-     */
-    @Test
-    public void testGetCommandLineWithStartEndConstructorChangedSince()
-            throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
-
-        final ChangedSince changedSince = new ChangedSince(1L);
-        final ImapRequest cmd = new FetchCommand(new MessageNumberSet[] { new MessageNumberSet(1, 10000) }, DATA_ITEMS, changedSince);
-        Assert.assertEquals(cmd.getCommandLine(), "FETCH 1:10000 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.

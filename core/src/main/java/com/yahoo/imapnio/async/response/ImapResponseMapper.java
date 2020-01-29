@@ -473,21 +473,29 @@ public class ImapResponseMapper {
             return new SearchResult(v, modSeq);
         }
 
+        /**
+         * Parses the responses from Store command and UID Store command to a @{code StoreResult} object.
+         *
+         * @param ir the list of responses from UID search command, the input responses array should contain the tagged/final one
+         * @return StoreResult object constructed based on the given IMAPResponse array,
+         * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
+         */
         @Nonnull
         private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
             if (ir.length < 1) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            if (!taggedResponse.isOK()) {
+            if (!taggedResponse.isOK() && !taggedResponse.isNO()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<FetchResponse> fetchResponses = new ArrayList<>();
+            final List<Long> msgs = new ArrayList<>();
 
-            List<Long> msgs = new ArrayList<>();
             Long highestModSeq = null;
+
             for (final IMAPResponse sr: ir) {
-                if (sr.isOK()) {
+                if (sr.isOK() || sr.isNO()) {
                     sr.skipSpaces();
                     if (sr.readByte() != (byte) L_BRACKET) {
                         continue;

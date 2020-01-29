@@ -10,11 +10,9 @@ import javax.annotation.Nullable;
  */
 public class SearchResult {
     /** Search command response sequence number, could be message sequence or UID. */
-    @Nonnull
     private final List<Long> msgNumbers;
 
     /** Modification sequence, is only shown when CondStore is enabled. */
-    @Nullable
     private final Long modSeq;
 
     /**

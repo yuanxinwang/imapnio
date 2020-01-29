@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.mail.Flags;
-import javax.mail.search.*;
+import javax.mail.search.FlagTerm;
+import javax.mail.search.SearchException;
+import javax.mail.search.SubjectTerm;
 
 import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
 import org.testng.Assert;

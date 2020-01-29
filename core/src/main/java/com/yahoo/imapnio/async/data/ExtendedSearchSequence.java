@@ -3,6 +3,8 @@ package com.yahoo.imapnio.async.data;
 import com.sun.mail.iap.Argument;
 import com.sun.mail.imap.protocol.SearchSequence;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.mail.search.AndTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.NotTerm;
@@ -17,7 +19,19 @@ import java.io.IOException;
  * name and type defined in https://tools.ietf.org/html/rfc7162#section-3.1.5.
  */
 public class ExtendedSearchSequence extends SearchSequence {
-    @Override
+
+    /**
+     * Generate the IMAP search sequence for the given search expression.
+     *
+     * @param term the search term
+     * @return the IMAP search sequence argument
+     * @throws SearchException will not throw
+     * @throws IOException will not throw
+     */
+    public Argument generateSequence(@Nonnull final SearchTerm term) throws IOException, SearchException {
+        return generateSequence(term, null);
+    }
+
     /**
      * Generate the IMAP search sequence for the given search expression.
      *
@@ -27,7 +41,8 @@ public class ExtendedSearchSequence extends SearchSequence {
      * @throws SearchException will not throw
      * @throws IOException will not throw
      */
-    public Argument generateSequence(final SearchTerm term, final String charset)
+    @Override
+    public Argument generateSequence(@Nonnull final SearchTerm term, @Nullable final String charset)
             throws SearchException, IOException {
         if (term instanceof ExtendedModifiedSinceTerm) {
             return modifiedSince((ExtendedModifiedSinceTerm) term);

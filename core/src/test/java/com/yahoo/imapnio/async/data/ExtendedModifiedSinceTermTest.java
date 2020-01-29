@@ -25,7 +25,7 @@ public class ExtendedModifiedSinceTermTest {
      * Tests ExtendedModifiedSinceTerm constructor and getters.
      */
     @Test
-    public void testExtendedModifiedSinceTermWihtoutOptionalField() {
+    public void testExtendedModifiedSinceTermWithoutOptionalField() {
         final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
         Assert.assertEquals(extendedModifiedSinceTerm.getModSeq(), 1L, "Result mismatched.");
         Assert.assertNull(extendedModifiedSinceTerm.getEntryName(), "Entry name not null");

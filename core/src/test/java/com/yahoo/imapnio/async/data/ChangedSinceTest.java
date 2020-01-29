@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 public class ChangedSinceTest {
     /**
-     * Test the get method for moseq.
+     * Test the get method for modSeq.
      */
     @Test
     public void testGetModSeq() {

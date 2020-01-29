@@ -47,7 +47,7 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
     }
 
     /**
-     * @return the the entry name
+     * @return the entry name
      */
     public String getEntryName() {
         return entryName;
@@ -74,7 +74,6 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
      * @param msg the date comparator is applied to this Message's MODSEQ
      * @return true if the comparison succeeds, otherwise false
      */
-
     @Override
     public boolean match(final Message msg) {
         long m;
@@ -82,13 +81,12 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
         try {
             if (msg instanceof IMAPMessage) {
                 m = ((IMAPMessage) msg).getModSeq();
+                return m >= modSeq;
             } else {
                 return false;
             }
         } catch (MessagingException e) {
             return false;
         }
-
-        return m >= modSeq;
     }
 }

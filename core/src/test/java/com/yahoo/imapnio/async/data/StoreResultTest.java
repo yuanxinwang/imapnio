@@ -43,12 +43,12 @@ public class StoreResultTest {
      */
     @Test
     public void testStorehResultNullHighestModSeq() {
-        final StoreResult infos = new StoreResult(null, null, null);
+        final StoreResult infos = new StoreResult(null, new ArrayList<>(), new ArrayList<>());
         final List<Long> modifiedMsgsets = infos.getModifiedMsgsets();
         final List<FetchResponse>fetchResponsesResult = infos.getFetchResponses();
         final Long highestModSeq = infos.getHighestModSeq();
-        Assert.assertNull(modifiedMsgsets, "Result mismatched.");
-        Assert.assertNull(fetchResponsesResult, "Result mismatched.");
+        Assert.assertEquals(modifiedMsgsets.size(), 0, "Result mismatched.");
+        Assert.assertEquals(fetchResponsesResult.size(), 0, "Result mismatched.");
         Assert.assertNull(highestModSeq, "Result mismatched.");
     }
 }

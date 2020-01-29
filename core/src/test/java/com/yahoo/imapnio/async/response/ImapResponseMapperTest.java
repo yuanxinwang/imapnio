@@ -1197,13 +1197,13 @@ public class ImapResponseMapperTest {
     }
 
     /**
-     * Tests parseStore method with no response.
+     * Tests parseStore method with 0 response.
      *
      * @throws IOException will not throw
      * @throws ProtocolException will not throw
      */
     @Test
-    public void testParseStoreNotResponse() throws IOException, ProtocolException {
+    public void testParseStoreZeroResponse() throws IOException, ProtocolException {
         final ImapResponseMapper mapper = new ImapResponseMapper();
         final IMAPResponse[] content = new IMAPResponse[0];
 
@@ -1217,5 +1217,24 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(cause, "cause mismatched.");
         Assert.assertEquals(cause.getFaiureType(), FailureType.INVALID_INPUT, "Failure type mismatched.");
+    }
+
+    /**
+     * Tests parseStore method successfully with NO response.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseStoreNoResponseCondStore() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final List<IMAPResponse> content = new ArrayList<>();
+        content.add(new IMAPResponse("B001 NO [MODIFIED 2] Some of the messages no longer exist."));
+        final StoreResult storeResult = mapper.readValue(content.toArray(new IMAPResponse[0]), StoreResult.class);
+
+        // verify the result
+        Assert.assertNotNull(storeResult, "store result mismatched.");
+        Assert.assertEquals(storeResult.getModifiedMsgsets().get(0), Long.valueOf(2), "getModifiedMsgsets() mismatched.");
     }
 }

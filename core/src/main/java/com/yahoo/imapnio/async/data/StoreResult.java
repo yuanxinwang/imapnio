@@ -2,6 +2,8 @@ package com.yahoo.imapnio.async.data;
 
 import com.sun.mail.imap.protocol.FetchResponse;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -10,7 +12,7 @@ import java.util.List;
  */
 public class StoreResult {
 
-    /** The highest modification sequence, is only shown when CondStore is enabled. */
+    /** The highest modification sequence, only shown when CondStore is enabled. */
     private Long highestModSeq;
 
     /** The collection of fetch response. */
@@ -20,6 +22,19 @@ public class StoreResult {
     private final List<Long> modifiedMsgsets;
 
     /**
+     * Initializes a {@code StoreResult} object with fetch responses collection,
+     * and modified message number collection.
+     *
+     * @param fetchResponses collection of fetch responses from store command result
+     * @param modifiedMsgsets collection of modified message number from store command result
+     */
+    public StoreResult(@Nonnull final List<FetchResponse> fetchResponses, @Nonnull final List<Long> modifiedMsgsets) {
+        this.highestModSeq = null;
+        this.fetchResponses = fetchResponses;
+        this.modifiedMsgsets = modifiedMsgsets;
+    }
+
+    /**
      * Initializes a {@code StoreResult} object with the highest modification sequence, fetch responses collection,
      * and modified message number collection.
      *
@@ -27,7 +42,8 @@ public class StoreResult {
      * @param fetchResponses collection of fetch responses from store command result
      * @param modifiedMsgsets collection of modified message number from store command result
      */
-    public StoreResult(final Long highestModSeq, final List<FetchResponse> fetchResponses, final List<Long> modifiedMsgsets) {
+    public StoreResult(@Nullable final Long highestModSeq, @Nonnull final List<FetchResponse> fetchResponses,
+                       @Nonnull final List<Long> modifiedMsgsets) {
         this.highestModSeq = highestModSeq;
         this.fetchResponses = fetchResponses;
         this.modifiedMsgsets = modifiedMsgsets;

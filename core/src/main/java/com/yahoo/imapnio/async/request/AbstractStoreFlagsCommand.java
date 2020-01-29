@@ -3,6 +3,7 @@ package com.yahoo.imapnio.async.request;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.mail.Flags;
 
 import com.yahoo.imapnio.async.data.MessageNumberSet;
@@ -96,11 +97,41 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
      * @param flags the flags to be stored
      * @param action whether to replace, add or remove the flags
      * @param silent true if asking server to respond silently
+     */
+    protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final MessageNumberSet[] msgsets, @Nonnull final Flags flags,
+                                        @Nonnull final FlagsAction action, final boolean silent) {
+        this(isUid, MessageNumberSet.buildString(msgsets), flags, action, silent, null);
+    }
+
+    /**
+     * Initializes a @{code AbstractStoreFlagsCommand} with the MessageNumberSet array, flags, action, silent flag whether server should return new
+     * values, and unchanged since the given modification sequence.
+     *
+     * @param isUid whether to have UID prepended
+     * @param msgsets the set of message set
+     * @param flags the flags to be stored
+     * @param action whether to replace, add or remove the flags
+     * @param silent true if asking server to respond silently
      * @param unchangedSince unchanged since the given modification sequence
      */
     protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final MessageNumberSet[] msgsets, @Nonnull final Flags flags,
-            @Nonnull final FlagsAction action, final boolean silent, final UnchangedSince unchangedSince) {
+            @Nonnull final FlagsAction action, final boolean silent, @Nullable final UnchangedSince unchangedSince) {
         this(isUid, MessageNumberSet.buildString(msgsets), flags, action, silent, unchangedSince);
+    }
+
+    /**
+     * Initializes a @{code AbstractStoreFlagsCommand} with string form message numbers (could be sequence sets or UIDs) and all other parameters.
+     * except unchanged since the given modification sequence
+     *
+     * @param isUid whether to have UID prepended
+     * @param msgNumbers the message id
+     * @param flags the flags to be stored
+     * @param action whether to replace, add or remove the flags
+     * @param silent true if asking server to respond silently
+     */
+    protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final Flags flags,
+                                        @Nonnull final FlagsAction action, final boolean silent) {
+        this(isUid, msgNumbers, flags, action, silent, null);
     }
 
     /**
@@ -114,7 +145,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
      * @param unchangedSince unchanged since the given modification sequence
      */
     protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final Flags flags,
-            @Nonnull final FlagsAction action, final boolean silent, final UnchangedSince unchangedSince) {
+            @Nonnull final FlagsAction action, final boolean silent, @Nullable final UnchangedSince unchangedSince) {
         this.isUid = isUid;
         this.msgNumbers = msgNumbers;
         this.flags = flags;
