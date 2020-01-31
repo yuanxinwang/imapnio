@@ -25,6 +25,7 @@ import com.sun.mail.imap.protocol.Status;
 import com.sun.mail.imap.protocol.UIDSet;
 import com.yahoo.imapnio.async.data.Capability;
 import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
+import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
 import com.yahoo.imapnio.async.data.ListInfoList;
 import com.yahoo.imapnio.async.data.SearchResult;
@@ -103,6 +104,9 @@ public class ImapResponseMapper {
         }
         if (valueType == StoreResult.class) {
             return (T) parser.parseToStoreResult(content);
+        }
+        if (valueType == FetchResult.class) {
+            return (T) parser.parseToFetchResult(content);
         }
         throw new ImapAsyncClientException(FailureType.UNKNOWN_PARSE_RESULT_TYPE);
     }
@@ -516,6 +520,44 @@ public class ImapResponseMapper {
             }
 
             return new StoreResult(highestModSeq, fetchResponses, msgs);
+        }
+
+        /**
+         * Parses the responses from Store command and UID Store command to a @{code StoreResult} object.
+         *
+         * @param ir the list of responses from UID search command, the input responses array should contain the tagged/final one
+         * @return StoreResult object constructed based on the given IMAPResponse array,
+         * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
+         */
+        @Nonnull
+        private FetchResult parseToFetchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
+            if (ir.length < 1) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final Response taggedResponse = ir[ir.length - 1];
+            if (!taggedResponse.isOK()) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final List<FetchResponse> fetchResponses = new ArrayList<>();
+
+            Long highestModSeq = null;
+
+            for (final IMAPResponse sr: ir) {
+                if (sr.isOK()) {
+                    sr.skipSpaces();
+                    if (sr.readByte() != (byte) L_BRACKET) {
+                        continue;
+                    }
+                    String s = sr.readAtom();
+                    if (s.equalsIgnoreCase("HIGHESTMODSEQ")) {
+                        highestModSeq = sr.readLong();
+                    }
+                } else {
+                    fetchResponses.add(new FetchResponse(sr));
+                }
+            }
+
+            return new FetchResult(highestModSeq, fetchResponses);
         }
     }
 }

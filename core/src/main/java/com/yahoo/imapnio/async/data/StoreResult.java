@@ -10,13 +10,7 @@ import java.util.List;
  * This class provides the highest modification sequence, the list of fetch response, and the list of modified message
  * number from store command response.
  */
-public class StoreResult {
-
-    /** The highest modification sequence, only shown when CondStore is enabled. */
-    private Long highestModSeq;
-
-    /** The collection of fetch response. */
-    private final List<FetchResponse> fetchResponses;
+public class StoreResult extends FetchResult {
 
     /** The collection of message number, only shown when CondStore is enabled. */
     private final List<Long> modifiedMsgsets;
@@ -29,8 +23,7 @@ public class StoreResult {
      * @param modifiedMsgsets collection of modified message number from store command result
      */
     public StoreResult(@Nonnull final List<FetchResponse> fetchResponses, @Nonnull final List<Long> modifiedMsgsets) {
-        this.highestModSeq = null;
-        this.fetchResponses = fetchResponses;
+        super(fetchResponses);
         this.modifiedMsgsets = modifiedMsgsets;
     }
 
@@ -44,23 +37,8 @@ public class StoreResult {
      */
     public StoreResult(@Nullable final Long highestModSeq, @Nonnull final List<FetchResponse> fetchResponses,
                        @Nonnull final List<Long> modifiedMsgsets) {
-        this.highestModSeq = highestModSeq;
-        this.fetchResponses = fetchResponses;
+        super(highestModSeq, fetchResponses);
         this.modifiedMsgsets = modifiedMsgsets;
-    }
-
-    /**
-     * @return the highest modification sequence from store or UID store command result
-     */
-    public Long getHighestModSeq() {
-        return highestModSeq;
-    }
-
-    /**
-     * @return fetch responses collection from store or UID store command result
-     */
-    public List<FetchResponse> getFetchResponses() {
-        return fetchResponses;
     }
 
     /**
