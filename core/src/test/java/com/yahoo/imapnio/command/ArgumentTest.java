@@ -13,12 +13,12 @@ import javax.mail.search.SearchException;
 import javax.mail.search.SearchTerm;
 import javax.mail.search.SubjectTerm;
 
-import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
-import com.yahoo.imapnio.async.data.ExtendedSearchSequence;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.sun.mail.imap.protocol.SearchSequence;
+import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
+import com.yahoo.imapnio.async.data.ExtendedSearchSequence;
 
 /**
  * Unit test for {@code Argument}.

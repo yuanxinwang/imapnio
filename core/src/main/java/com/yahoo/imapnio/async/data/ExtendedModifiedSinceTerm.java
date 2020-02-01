@@ -1,11 +1,12 @@
 package com.yahoo.imapnio.async.data;
 
-import com.sun.mail.imap.IMAPMessage;
-
 import javax.annotation.Nullable;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.search.SearchTerm;
+
+import com.sun.mail.imap.IMAPMessage;
+import com.yahoo.imapnio.async.request.EntryTypeReq;
 
 /**
  * Find messages that have been modified since a given MODSEQ value
@@ -15,14 +16,14 @@ import javax.mail.search.SearchTerm;
  */
 public final class ExtendedModifiedSinceTerm extends SearchTerm {
 
-    /** The given modification sequence. */
-    private final long modSeq;
-
     /** The name of the metadata item. */
     private final String entryName;
 
     /** The type of metadata item. */
-    private final String entryType;
+    private final EntryTypeReq entryType;
+
+    /** The given modification sequence. */
+    private final long modSeq;
 
     /**
      * Constructor.
@@ -30,17 +31,19 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
      * @param modSeq modification sequence number
      */
     public ExtendedModifiedSinceTerm(final long modSeq) {
-        this(modSeq, null, null);
+        this.entryName = null;
+        this.entryType = null;
+        this.modSeq = modSeq;
     }
 
     /**
      * Constructor.
      *
-     * @param modSeq modification sequence number
      * @param entryName name of the metadata item
      * @param entryType type of the metadata item
+     * @param modSeq modification sequence number
      */
-    public ExtendedModifiedSinceTerm(final long modSeq, @Nullable final String entryName, @Nullable final String entryType) {
+    public ExtendedModifiedSinceTerm(@Nullable final String entryName, @Nullable final EntryTypeReq entryType, final long modSeq) {
         this.entryName = entryName;
         this.entryType = entryType;
         this.modSeq = modSeq;
@@ -49,6 +52,7 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
     /**
      * @return the entry name
      */
+    @Nullable
     public String getEntryName() {
         return entryName;
     }
@@ -56,7 +60,8 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
     /**
      * @return the entry type
      */
-    public String getEntryType() {
+    @Nullable
+    public EntryTypeReq getEntryType() {
         return entryType;
     }
 

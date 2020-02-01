@@ -1,9 +1,11 @@
 package com.yahoo.imapnio.async.data;
 
-import com.sun.mail.imap.IMAPMessage;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.sun.mail.imap.IMAPMessage;
+import com.yahoo.imapnio.async.request.EntryTypeReq;
 
 /**
  * Unit test for {@code ExtendedModifiedSinceTerm}.
@@ -15,10 +17,10 @@ public class ExtendedModifiedSinceTermTest {
      */
     @Test
     public void testExtendedModifiedSinceTermWithOptionalField() {
-        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L, "/seen", "ALL");
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm("/seen", EntryTypeReq.ALL, 1L);
         Assert.assertEquals(extendedModifiedSinceTerm.getModSeq(), 1L, "Result mismatched.");
         Assert.assertEquals(extendedModifiedSinceTerm.getEntryName(), "/seen", "Result mismatched.");
-        Assert.assertEquals(extendedModifiedSinceTerm.getEntryType(), "ALL", "Result mismatched.");
+        Assert.assertEquals(extendedModifiedSinceTerm.getEntryType().name(), "ALL", "Result mismatched.");
     }
 
     /**

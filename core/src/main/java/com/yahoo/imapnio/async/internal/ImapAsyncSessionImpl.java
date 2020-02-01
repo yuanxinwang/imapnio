@@ -103,7 +103,7 @@ public class ImapAsyncSessionImpl implements ImapAsyncSession, ImapCommandChanne
         public enum CommandState {
             /** Request (command line) is in preparation to be generated and sent, but not yet sent to server. */
             REQUEST_IN_PREPARATION,
-            /** Request (command line) is confirmed sent to the server. */
+            /** Request (command line) is confirmed sent to the the server. */
             REQUEST_SENT,
             /** Server done with responses for the given client request. Server is not obligated to send more responses per given request. */
             RESPONSES_DONE

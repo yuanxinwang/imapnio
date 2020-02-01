@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import javax.mail.Flags;
 
 import com.yahoo.imapnio.async.data.MessageNumberSet;
-import com.yahoo.imapnio.async.data.UnchangedSince;
 
 /**
  * This class defines IMAP UID store command request from client.
@@ -59,7 +58,7 @@ public class UidStoreFlagsCommand extends AbstractStoreFlagsCommand {
      * @param unchangedSince unchanged since the given modification sequence
      */
     public UidStoreFlagsCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final Flags flags, @Nonnull final FlagsAction action,
-                                @Nullable final UnchangedSince unchangedSince) {
+                                @Nullable final Long unchangedSince) {
         super(true, msgsets, flags, action, false, unchangedSince);
     }
 
@@ -74,7 +73,7 @@ public class UidStoreFlagsCommand extends AbstractStoreFlagsCommand {
      * @param unchangedSince unchanged since the given modification sequence
      */
     public UidStoreFlagsCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final Flags flags, @Nonnull final FlagsAction action,
-                                final boolean silent, @Nullable final UnchangedSince unchangedSince) {
+                                final boolean silent, @Nullable final Long unchangedSince) {
         super(true, msgsets, flags, action, silent, unchangedSince);
     }
 
@@ -89,7 +88,7 @@ public class UidStoreFlagsCommand extends AbstractStoreFlagsCommand {
      * @param unchangedSince unchanged since the given modification sequence
      */
     public UidStoreFlagsCommand(@Nonnull final String uids, @Nonnull final Flags flags, @Nonnull final FlagsAction action,
-                                final boolean silent, @Nullable final UnchangedSince unchangedSince) {
+                                final boolean silent, @Nullable final Long unchangedSince) {
         super(true, uids, flags, action, silent, unchangedSince);
     }
 

@@ -463,7 +463,7 @@ public class ImapResponseMapper {
                 // There *will* be one SEARCH response.
                 if (sr.keyEquals("SEARCH")) {
                     while ((num = sr.readLong()) != -1) {
-                        v.add(Long.valueOf(num));
+                        v.add(num);
                     }
                     if (sr.readByte() == '(') {
                         final String s = sr.readAtom();
@@ -490,11 +490,11 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            if (!taggedResponse.isOK() && !taggedResponse.isNO()) {
+            if (taggedResponse.isBAD()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<FetchResponse> fetchResponses = new ArrayList<>();
-            final List<Long> msgs = new ArrayList<>();
+            final List<Long> modifiedMessageIdList = new ArrayList<>();
 
             Long highestModSeq = null;
 
@@ -504,22 +504,22 @@ public class ImapResponseMapper {
                     if (sr.readByte() != (byte) L_BRACKET) {
                         continue;
                     }
-                    String s = sr.readAtom();
-                    if (s.equalsIgnoreCase("HIGHESTMODSEQ")) {
+                    final String responseCode = sr.readAtom();
+                    if (responseCode.equalsIgnoreCase("HIGHESTMODSEQ")) {
                         highestModSeq = sr.readLong();
-                    } else if (s.equalsIgnoreCase("MODIFIED")) {
-                        s = sr.readAtom();
-                        s = s.replace("[", "");
-                        for (String str: s.split(",")) {
-                            msgs.add(Long.valueOf(str));
+                    } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
+                        final String modifiedSeqStr = sr.readAtom();
+                        String[] modifiedSeqArray = modifiedSeqStr.replace("[", "").split(",");
+                        for (String str: modifiedSeqArray) {
+                            modifiedMessageIdList.add(Long.valueOf(str));
                         }
                     }
-                } else {
+                } else if (sr.keyEquals("FETCH")) {
                     fetchResponses.add(new FetchResponse(sr));
                 }
             }
 
-            return new StoreResult(highestModSeq, fetchResponses, msgs);
+            return new StoreResult(highestModSeq, fetchResponses, modifiedMessageIdList);
         }
 
         /**

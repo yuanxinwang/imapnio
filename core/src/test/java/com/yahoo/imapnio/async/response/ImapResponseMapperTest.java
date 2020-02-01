@@ -7,7 +7,6 @@ import java.util.List;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 
-import com.yahoo.imapnio.async.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,6 +19,13 @@ import com.sun.mail.imap.protocol.ListInfo;
 import com.sun.mail.imap.protocol.MailboxInfo;
 import com.sun.mail.imap.protocol.MODSEQ;
 import com.sun.mail.imap.protocol.Status;
+import com.yahoo.imapnio.async.data.Capability;
+import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
+import com.yahoo.imapnio.async.data.FetchResult;
+import com.yahoo.imapnio.async.data.IdResult;
+import com.yahoo.imapnio.async.data.ListInfoList;
+import com.yahoo.imapnio.async.data.SearchResult;
+import com.yahoo.imapnio.async.data.StoreResult;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException.FailureType;
 

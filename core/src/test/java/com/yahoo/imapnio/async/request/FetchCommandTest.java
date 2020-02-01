@@ -8,7 +8,6 @@ import java.util.Set;
 
 import javax.mail.search.SearchException;
 
-import com.yahoo.imapnio.async.data.ChangedSince;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -132,8 +131,7 @@ public class FetchCommandTest {
 
         final long[] msgs = { 4294967293L, 4294967294L, 4294967295L };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
-        final ChangedSince changedSince = new ChangedSince(1L);
-        final ImapRequest cmd = new FetchCommand(msgsets, FetchMacro.FAST, changedSince);
+        final ImapRequest cmd = new FetchCommand(msgsets, FetchMacro.FAST, 1L);
         Assert.assertEquals(cmd.getCommandLine(), "FETCH 4294967293:4294967295 FAST (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
 
         cmd.cleanup();
@@ -156,8 +154,7 @@ public class FetchCommandTest {
 
         final int[] msgs = { 1, 2, 3 };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
-        final ChangedSince changedSince = new ChangedSince(1L);
-        final ImapRequest cmd = new FetchCommand(msgsets, DATA_ITEMS, changedSince);
+        final ImapRequest cmd = new FetchCommand(msgsets, DATA_ITEMS, 1L);
         Assert.assertEquals(cmd.getCommandLine(), "FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
 
         cmd.cleanup();

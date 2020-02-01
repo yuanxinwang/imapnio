@@ -1,15 +1,16 @@
 package com.yahoo.imapnio.async.data;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.IMAPResponse;
 import com.sun.mail.imap.protocol.MODSEQ;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Unit test for {@code StoreResult}.

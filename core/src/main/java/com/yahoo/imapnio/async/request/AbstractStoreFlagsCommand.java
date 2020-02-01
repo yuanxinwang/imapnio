@@ -8,7 +8,6 @@ import javax.mail.Flags;
 
 import com.yahoo.imapnio.async.data.MessageNumberSet;
 
-import com.yahoo.imapnio.async.data.UnchangedSince;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -71,7 +70,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
     private static final byte[] UNCHANGEDSINCE_B = UNCHANGEDSINCE.getBytes(StandardCharsets.US_ASCII);
 
     /** Unchanged since the modification seqeuence. */
-    private UnchangedSince unchangedSince;
+    private Long unchangedSince;
 
     /** Flag whether adding UID before store command. */
     private boolean isUid;
@@ -115,7 +114,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
      * @param unchangedSince unchanged since the given modification sequence
      */
     protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final MessageNumberSet[] msgsets, @Nonnull final Flags flags,
-            @Nonnull final FlagsAction action, final boolean silent, @Nullable final UnchangedSince unchangedSince) {
+            @Nonnull final FlagsAction action, final boolean silent, @Nullable final Long unchangedSince) {
         this(isUid, MessageNumberSet.buildString(msgsets), flags, action, silent, unchangedSince);
     }
 
@@ -145,7 +144,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
      * @param unchangedSince unchanged since the given modification sequence
      */
     protected AbstractStoreFlagsCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final Flags flags,
-            @Nonnull final FlagsAction action, final boolean silent, @Nullable final UnchangedSince unchangedSince) {
+            @Nonnull final FlagsAction action, final boolean silent, @Nullable final Long unchangedSince) {
         this.isUid = isUid;
         this.msgNumbers = msgNumbers;
         this.flags = flags;
@@ -174,7 +173,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
             sb.writeByte(ImapClientConstants.L_PAREN);
             sb.writeBytes(UNCHANGEDSINCE_B);
             sb.writeByte(ImapClientConstants.SPACE);
-            sb.writeBytes(String.valueOf(unchangedSince.getModSeq()).getBytes(StandardCharsets.US_ASCII));
+            sb.writeBytes(String.valueOf(unchangedSince).getBytes(StandardCharsets.US_ASCII));
             sb.writeByte(ImapClientConstants.R_PAREN);
             sb.writeByte(ImapClientConstants.SPACE);
         }

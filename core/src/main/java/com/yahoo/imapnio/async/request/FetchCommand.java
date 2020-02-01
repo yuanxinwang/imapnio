@@ -3,7 +3,6 @@ package com.yahoo.imapnio.async.request;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.yahoo.imapnio.async.data.ChangedSince;
 import com.yahoo.imapnio.async.data.MessageNumberSet;
 
 /**
@@ -38,7 +37,7 @@ public class FetchCommand extends AbstractFetchCommand {
      * @param items the data items
      * @param changedSince changed since the given modification sequence
      */
-    public FetchCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final String items, @Nullable final ChangedSince changedSince) {
+    public FetchCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final String items, @Nullable final Long changedSince) {
         super(false, msgsets, items, changedSince);
     }
 
@@ -49,7 +48,7 @@ public class FetchCommand extends AbstractFetchCommand {
      * @param macro the macro
      * @param changedSince changed since the given modification sequence
      */
-    public FetchCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final FetchMacro macro, @Nullable final ChangedSince changedSince) {
+    public FetchCommand(@Nonnull final MessageNumberSet[] msgsets, @Nonnull final FetchMacro macro, @Nullable final Long changedSince) {
         super(false, msgsets, macro, changedSince);
     }
 

@@ -1,10 +1,11 @@
 package com.yahoo.imapnio.async.data;
 
-import com.sun.mail.imap.protocol.FetchResponse;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+
+import com.sun.mail.imap.protocol.FetchResponse;
 
 /**
  * This class provides the highest modification sequence, the list of fetch response, and the list of modified message
@@ -44,6 +45,7 @@ public class StoreResult extends FetchResult {
     /**
      * @return modified message number collection from store or UID store command result
      */
+    @Nonnull
     public List<Long> getModifiedMsgsets() {
         return modifiedMsgsets;
     }

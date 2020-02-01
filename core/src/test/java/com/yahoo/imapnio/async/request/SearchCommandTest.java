@@ -18,7 +18,6 @@ import javax.mail.search.FlagTerm;
 import javax.mail.search.SearchException;
 import javax.mail.search.SubjectTerm;
 
-import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,6 +25,7 @@ import org.testng.annotations.Test;
 import com.sun.mail.iap.Argument;
 import com.sun.mail.iap.Literal;
 import com.yahoo.imapnio.async.data.Capability;
+import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
 import com.yahoo.imapnio.async.data.MessageNumberSet;
 import com.yahoo.imapnio.async.data.MessageNumberSet.LastMessage;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
@@ -275,7 +275,7 @@ public class SearchCommandTest {
     @Test
     public void testGetCommandLineNonNullModSeqWithOptionalField()
             throws IOException, IllegalArgumentException, IllegalAccessException, SearchException, ImapAsyncClientException {
-        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L, "/SEEN", "ALL");
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm("/SEEN", EntryTypeReq.ALL, 1L);
         final MessageNumberSet[] msgsets = null;
         final ImapRequest cmd = new SearchCommand(msgsets, extendedModifiedSinceTerm, null);
         Assert.assertEquals(cmd.getCommandLine(), "SEARCH MODSEQ \"/SEEN\" ALL 1\r\n", "Expected result mismatched.");

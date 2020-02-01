@@ -1,10 +1,11 @@
 package com.yahoo.imapnio.async.data;
 
-import com.sun.mail.imap.protocol.FetchResponse;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+
+import com.sun.mail.imap.protocol.FetchResponse;
 
 /**
  * This class provides the highest modification sequence and the list of fetch response from fetch command response.
@@ -41,6 +42,7 @@ public class FetchResult {
     /**
      * @return the highest modification sequence from fetch or UID fetch command result
      */
+    @Nullable
     public Long getHighestModSeq() {
         return highestModSeq;
     }
@@ -48,6 +50,7 @@ public class FetchResult {
     /**
      * @return fetch responses collection from fetch or UID fetch command result
      */
+    @Nonnull
     public List<FetchResponse> getFetchResponses() {
         return fetchResponses;
     }
