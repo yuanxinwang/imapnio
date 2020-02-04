@@ -39,7 +39,7 @@ public class SearchResult {
     /**
      * @return message number collection from search command or UID search command result
      */
-    @Nullable
+    @Nonnull
     public List<Long> getMessageNumbers() {
         return this.msgNumbers;
     }

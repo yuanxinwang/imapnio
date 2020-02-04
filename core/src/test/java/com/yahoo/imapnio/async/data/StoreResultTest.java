@@ -22,16 +22,15 @@ public class StoreResultTest {
     @Test
     public void testStorehResult() throws IOException, ProtocolException {
         final IMAPResponse imapResponse = new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))");
-        final FetchResponse fetchResponse = new FetchResponse(imapResponse);
-        final List<FetchResponse> fetchResponses = new ArrayList<>();
-        fetchResponses.add(fetchResponse);
+        final List<IMAPResponse> imapResponses = new ArrayList<>();
+        imapResponses.add(imapResponse);
         final List<Long> modifiedMsgNums = new ArrayList<>();
         modifiedMsgNums.add(1L);
-        final StoreResult infos = new StoreResult(1L, fetchResponses, modifiedMsgNums);
+        final StoreResult infos = new StoreResult(1L, imapResponses, modifiedMsgNums);
         final List<Long> modifiedMsgsets = infos.getModifiedMsgsets();
-        final List<FetchResponse>fetchResponsesResult = infos.getFetchResponses();
+        final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
         final long highestModSeq = infos.getHighestModSeq();
-        final long fetchedModSeq = fetchResponsesResult.get(0).getItem(MODSEQ.class).modseq;
+        final long fetchedModSeq = new FetchResponse(fetchResponsesResult.get(0)).getItem(MODSEQ.class).modseq;
         Assert.assertEquals(modifiedMsgsets.size(), 1, "Result mismatched.");
         Assert.assertEquals(fetchResponsesResult.size(), 1, "Result mismatched.");
         Assert.assertEquals(fetchedModSeq, 12121231000L, "Result mismatched.");
@@ -39,14 +38,14 @@ public class StoreResultTest {
     }
 
     /**
-     * Tests StoreResult constructor and getters when passing null highest mod sequence, null fetch responses collection,
-     * and null modified message number collection.
+     * Tests StoreResult constructor and getters when passing null highest mod sequence, empty fetch responses collection,
+     * and empty modified message number collection.
      */
     @Test
     public void testStorehResultNullHighestModSeq() {
         final StoreResult infos = new StoreResult(new ArrayList<>(), new ArrayList<>());
         final List<Long> modifiedMsgsets = infos.getModifiedMsgsets();
-        final List<FetchResponse>fetchResponsesResult = infos.getFetchResponses();
+        final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
         final Long highestModSeq = infos.getHighestModSeq();
         Assert.assertEquals(modifiedMsgsets.size(), 0, "Result mismatched.");
         Assert.assertEquals(fetchResponsesResult.size(), 0, "Result mismatched.");

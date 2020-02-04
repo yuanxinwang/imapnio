@@ -17,7 +17,6 @@ import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.iap.Response;
 import com.sun.mail.imap.AppendUID;
 import com.sun.mail.imap.CopyUID;
-import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.IMAPResponse;
 import com.sun.mail.imap.protocol.ListInfo;
 import com.sun.mail.imap.protocol.MailboxInfo;
@@ -186,7 +185,7 @@ public class ImapResponseMapper {
 
             // case 2. from server greeting. EX: OK [CAPABILITY IMAP4rev1 SASL-IR AUTH=PLAIN] IMAP4rev1 Hello
             byte b;
-            while ((b = r.readByte()) > 0 && b != (byte) L_BRACKET) {
+            while ((b = r.readByte()) > 0 && b != (byte) '[') {
                 // eat chars till [
             }
             if (b == 0) { // left bracket not found
@@ -392,7 +391,7 @@ public class ImapResponseMapper {
         /**
          * Parses the ID responses to a @{code IdResult} object.
          *
-         * @param ir the list of responses from ID command, the input responses array should contain the tagged/final one
+         * @param r the list of responses from ID command, the input responses array should contain the tagged/final one
          * @return IdResult object constructed based on the given IMAPResponse array
          * @throws ParsingException when encountering parsing exception
          * @throws ImapAsyncClientException when input value is not valid
@@ -480,12 +479,12 @@ public class ImapResponseMapper {
         /**
          * Parses the responses from Store command and UID Store command to a @{code StoreResult} object.
          *
-         * @param ir the list of responses from UID search command, the input responses array should contain the tagged/final one
+         * @param ir the list of responses from Store or UID Store command, the input responses array should contain the tagged/final one
          * @return StoreResult object constructed based on the given IMAPResponse array,
          * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
          */
         @Nonnull
-        private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
+        private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
             if (ir.length < 1) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
@@ -493,44 +492,44 @@ public class ImapResponseMapper {
             if (taggedResponse.isBAD()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
-            final List<FetchResponse> fetchResponses = new ArrayList<>();
-            final List<Long> modifiedMessageIdList = new ArrayList<>();
+            final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
+            final List<Long> modifiedMessageIdList = new ArrayList<>(); // will always return a non-null array
 
             Long highestModSeq = null;
 
             for (final IMAPResponse sr: ir) {
-                if (sr.isOK() || sr.isNO()) {
+                if (sr.isOK() || sr.isNO()) { // "The MODIFIED response code MAY also be returned in the tagged NO response"
                     sr.skipSpaces();
                     if (sr.readByte() != (byte) L_BRACKET) {
                         continue;
                     }
                     final String responseCode = sr.readAtom();
-                    if (responseCode.equalsIgnoreCase("HIGHESTMODSEQ")) {
+                    if (sr.isOK() && responseCode.equalsIgnoreCase("HIGHESTMODSEQ")) {
                         highestModSeq = sr.readLong();
                     } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
                         final String modifiedSeqStr = sr.readAtom();
-                        String[] modifiedSeqArray = modifiedSeqStr.replace("[", "").split(",");
-                        for (String str: modifiedSeqArray) {
+                        final String[] modifiedSeqArray = modifiedSeqStr.replace("[", "").split(",");
+                        for (final String str: modifiedSeqArray) {
                             modifiedMessageIdList.add(Long.valueOf(str));
                         }
                     }
-                } else if (sr.keyEquals("FETCH")) {
-                    fetchResponses.add(new FetchResponse(sr));
+                } else {
+                    imapResponses.add(sr);
                 }
             }
 
-            return new StoreResult(highestModSeq, fetchResponses, modifiedMessageIdList);
+            return new StoreResult(highestModSeq, imapResponses, modifiedMessageIdList);
         }
 
         /**
-         * Parses the responses from Store command and UID Store command to a @{code StoreResult} object.
+         * Parses the responses from Fetch command and UID Fetch command to a @{code FetchResult} object.
          *
-         * @param ir the list of responses from UID search command, the input responses array should contain the tagged/final one
-         * @return StoreResult object constructed based on the given IMAPResponse array,
-         * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
+         * @param ir the list of responses from Fetch or UID Fetch command, the input responses array should contain the tagged/final one
+         * @return FetchResult object constructed based on the given IMAPResponse array,
+         * @throws ImapAsyncClientException when tagged response is not OK or given response length is 0
          */
         @Nonnull
-        private FetchResult parseToFetchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
+        private FetchResult parseToFetchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
             if (ir.length < 1) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
@@ -538,7 +537,7 @@ public class ImapResponseMapper {
             if (!taggedResponse.isOK()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
-            final List<FetchResponse> fetchResponses = new ArrayList<>();
+            final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
 
             Long highestModSeq = null;
 
@@ -548,16 +547,16 @@ public class ImapResponseMapper {
                     if (sr.readByte() != (byte) L_BRACKET) {
                         continue;
                     }
-                    String s = sr.readAtom();
+                    final String s = sr.readAtom();
                     if (s.equalsIgnoreCase("HIGHESTMODSEQ")) {
                         highestModSeq = sr.readLong();
                     }
                 } else {
-                    fetchResponses.add(new FetchResponse(sr));
+                    imapResponses.add(sr);
                 }
             }
 
-            return new FetchResult(highestModSeq, fetchResponses);
+            return new FetchResult(highestModSeq, imapResponses);
         }
     }
 }

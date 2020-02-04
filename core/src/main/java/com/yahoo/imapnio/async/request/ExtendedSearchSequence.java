@@ -1,4 +1,4 @@
-package com.yahoo.imapnio.async.data;
+package com.yahoo.imapnio.async.request;
 
 import java.io.IOException;
 
@@ -8,12 +8,16 @@ import javax.mail.search.SearchTerm;
 
 import com.sun.mail.iap.Argument;
 import com.sun.mail.imap.protocol.SearchSequence;
+import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
 
 /**
  * This class extends the search sequence for modification sequence with the optional fields entry
  * name and type defined in https://tools.ietf.org/html/rfc7162#section-3.1.5.
  */
 public class ExtendedSearchSequence extends SearchSequence {
+
+    /** Literal for NOMODSEQ. */
+    private static final String MODSEQ = "MODSEQ";
 
     /**
      * Generate the IMAP search sequence for the given search expression.
@@ -54,13 +58,14 @@ public class ExtendedSearchSequence extends SearchSequence {
      *
      * @param term the extended modified since search term
      * @return the IMAP search sequence argument
+     * @throws IOException will not throw
      */
-    protected Argument modifiedSince(final ExtendedModifiedSinceTerm term) {
+    protected Argument modifiedSince(@Nonnull final ExtendedModifiedSinceTerm term) throws IOException {
         final Argument result = new Argument();
-        result.writeAtom("MODSEQ");
-
+        result.writeAtom(MODSEQ);
+        final ImapArgumentFormatter argWriter = new ImapArgumentFormatter();
         if (term.getEntryName() != null && term.getEntryType() != null) {
-            result.writeAtom("\"" + term.getEntryName() + "\"");
+            result.writeAtom(argWriter.buildEntryFlagName(term.getEntryName()));
             result.writeAtom(term.getEntryType().name());
         }
 

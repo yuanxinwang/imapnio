@@ -15,22 +15,34 @@ import io.netty.buffer.Unpooled;
  *
  * <pre>
  *
- * store           = "STORE" SP sequence-set SP store-att-flags
+ * store                = "STORE" SP sequence-set SP store-att-flags
  *
- * store-att-flags = (["+" / "-"] "FLAGS" [".SILENT"]) SP
- *                   (flag-list / (flag *(SP flag)))
- * flag-list       = "(" [flag *(SP flag)] ")"
- * flag            = "\Answered" / "\Flagged" / "\Deleted" /
- *                   "\Seen" / "\Draft" / flag-keyword / flag-extension
- *                   ; Does not include "\Recent"
+ * store-att-flags      = (["+" / "-"] "FLAGS" [".SILENT"]) SP
+ *                        (flag-list / (flag *(SP flag)))
+ * flag-list            = "(" [flag *(SP flag)] ")"
  *
- * flag-extension  = "\" atom
- *                   ; Future expansion.  Client implementations
- *                   ; MUST accept flag-extension flags.  Server
- *                   ; implementations MUST NOT generate
- *                   ; flag-extension flags except as defined by
- *                   ; future standard or standards-track
- *                   ; revisions of this specification.
+ * flag                 = "\Answered" / "\Flagged" / "\Deleted" /
+ *                        "\Seen" / "\Draft" / flag-keyword / flag-extension
+ *                        ; Does not include "\Recent"
+ *
+ * flag-extension       = "\" atom
+ *                        ; Future expansion.  Client implementations
+ *                        ; MUST accept flag-extension flags.  Server
+ *                        ; implementations MUST NOT generate
+ *                        ; flag-extension flags except as defined by
+ *                        ; future standard or standards-track
+ *                        ; revisions of this specification.
+ *
+ * store-modifier      =/ "UNCHANGEDSINCE" SP mod-sequence-valzer
+ *                       ;; Only a single "UNCHANGEDSINCE" may be
+ *                       ;; specified in a STORE operation.
+ *
+ * mod-sequence-value  = 1*DIGIT
+ *                       ;; Positive unsigned 63-bit integer
+ *                       ;; (mod-sequence)
+ *                       ;; (1 \leq n \leq 9,223,372,036,854,775,807).
+ *
+ * mod-sequence-valzer = "0" / mod-sequence-value
  * </pre>
  */
 public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
@@ -202,7 +214,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
         // buildFlagString generates "(" [flag *(SP flag)] ")"
         final ImapArgumentFormatter argWriter = new ImapArgumentFormatter();
         sb.writeByte(ImapClientConstants.SPACE);
-        sb.writeBytes(argWriter.buildFlagString(flags).getBytes(StandardCharsets.US_ASCII));
+        sb.writeBytes(argWriter.buildFlagListString(flags).getBytes(StandardCharsets.US_ASCII));
         sb.writeBytes(CRLF_B);
 
         return sb;

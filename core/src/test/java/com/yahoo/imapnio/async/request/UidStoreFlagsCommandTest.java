@@ -240,8 +240,7 @@ public class UidStoreFlagsCommandTest {
      * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testGetCommandLineWithFlagsAddedNotSilentUnchangedSince()
-            throws IllegalArgumentException, IllegalAccessException, ImapAsyncClientException {
+    public void testGetCommandLineWithFlagsAddedNotSilentUnchangedSince() throws IllegalArgumentException, IllegalAccessException, ImapAsyncClientException {
 
         final int[] msgs = { 1, 2, 3 };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
@@ -266,8 +265,7 @@ public class UidStoreFlagsCommandTest {
      * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testGetCommandLineWithFlagsAddedSilentUnchangedSince()
-            throws IllegalArgumentException, IllegalAccessException, ImapAsyncClientException {
+    public void testGetCommandLineWithFlagsAddedSilentUnchangedSince() throws IllegalArgumentException, IllegalAccessException, ImapAsyncClientException {
 
         final int[] msgs = { 1, 2, 3 };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
@@ -292,8 +290,7 @@ public class UidStoreFlagsCommandTest {
      * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testGetCommandLineWithMessageSeqStringFlagsAddedAndSilentUnchangeSince()
-            throws IllegalAccessException, ImapAsyncClientException {
+    public void testGetCommandLineWithMessageSeqStringFlagsAddedAndSilentUnchangeSince() throws IllegalAccessException, ImapAsyncClientException {
 
         final Flags flags = new Flags();
         flags.add(Flags.Flag.SEEN);

@@ -7,6 +7,8 @@ import org.testng.annotations.Test;
 import com.sun.mail.imap.IMAPMessage;
 import com.yahoo.imapnio.async.request.EntryTypeReq;
 
+import javax.mail.Flags;
+
 /**
  * Unit test for {@code ExtendedModifiedSinceTerm}.
  */
@@ -17,9 +19,11 @@ public class ExtendedModifiedSinceTermTest {
      */
     @Test
     public void testExtendedModifiedSinceTermWithOptionalField() {
-        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm("/seen", EntryTypeReq.ALL, 1L);
+        final Flags flags = new Flags();
+        flags.add(Flags.Flag.SEEN);
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(flags, EntryTypeReq.ALL, 1L);
         Assert.assertEquals(extendedModifiedSinceTerm.getModSeq(), 1L, "Result mismatched.");
-        Assert.assertEquals(extendedModifiedSinceTerm.getEntryName(), "/seen", "Result mismatched.");
+        Assert.assertTrue(extendedModifiedSinceTerm.getEntryName().contains(Flags.Flag.SEEN), "Result mismatched.");
         Assert.assertEquals(extendedModifiedSinceTerm.getEntryType().name(), "ALL", "Result mismatched.");
     }
 

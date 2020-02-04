@@ -1,5 +1,6 @@
 package com.yahoo.imapnio.async.request;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
@@ -181,7 +182,7 @@ public class ImapArgumentFormatter {
      * @param flags the flags
      * @return the flag list string
      */
-    String buildFlagString(@Nonnull final Flags flags) {
+    String buildFlagListString(@Nonnull final Flags flags) {
         final StringBuilder sb = new StringBuilder();
         sb.append(ImapClientConstants.L_PAREN); // start of flag_list
 
@@ -224,6 +225,48 @@ public class ImapArgumentFormatter {
         }
 
         sb.append(ImapClientConstants.R_PAREN); // terminate flag_list
+        return sb.toString();
+    }
+
+    /**
+     * Creates an IMAP entry-flag-name from the given Flag object.
+     *
+     * @param flag the flags with one flag
+     * @throws ImapAsyncClientException when the number of flags is larger than 1
+     * @return the entry flag name string
+     */
+     String buildEntryFlagName(@Nonnull final Flags flag) throws IOException {
+        final Flags.Flag[] sf = flag.getSystemFlags(); // get the system flags
+        final String[] uf = flag.getUserFlags(); // get the user flag strings
+        if (sf.length + uf.length != 1) {
+            throw new IOException("Only one flag is allowed.");
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append(ImapClientConstants.DQUOTA);
+        sb.append("/flags/"); // start of entry flag name
+        String s = "";
+
+        if (sf.length == 1) {
+            if (sf[0] == Flags.Flag.ANSWERED) {
+                s = ANSWERED;
+            } else if (sf[0] == Flags.Flag.DELETED) {
+                s = DELETED;
+            } else if (sf[0] == Flags.Flag.DRAFT) {
+                s = DRAFT;
+            } else if (sf[0] == Flags.Flag.FLAGGED) {
+                s = FLAGGED;
+            } else if (sf[0] == Flags.Flag.RECENT) {
+                s = RECENT;
+            } else if (sf[0] == Flags.Flag.SEEN) {
+                s = SEEN;
+            }
+            sb.append(ImapClientConstants.BACKSLASH);
+        } else {
+            s = uf[0];
+        }
+
+        sb.append(s);
+        sb.append(ImapClientConstants.DQUOTA);
         return sb.toString();
     }
 }
