@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.sun.mail.imap.protocol.SearchSequence;
 import com.yahoo.imapnio.async.data.ExtendedModifiedSinceTerm;
+import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.request.ExtendedSearchSequence;
 
 /**
@@ -86,9 +87,10 @@ public class ArgumentTest {
      *
      * @throws IOException will not throw
      * @throws SearchException will not throw
+     * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testConstructorModifiedSince() throws SearchException, IOException {
+    public void testConstructorModifiedSince() throws SearchException, IOException, ImapAsyncClientException {
 
         final ExtendedSearchSequence searchSeq = new ExtendedSearchSequence();
         final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
@@ -120,23 +122,24 @@ public class ArgumentTest {
     }
 
     /**
-     * Tests constructor and toString() method with null character set and extended search sequence with Not And search terms.
+     * Tests constructor and toString() method with null character set and extended search sequence with Not And Modified Since terms.
      *
      * @throws IOException will not throw
      * @throws SearchException will not throw
+     * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testConstructorNotAnd() throws SearchException, IOException {
+    public void testConstructorNotAndModifiedSince() throws SearchException, IOException, ImapAsyncClientException {
 
         final ExtendedSearchSequence searchSeq = new ExtendedSearchSequence();
         final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
         final BodyTerm bodyTerm = new BodyTerm("test");
-        final AndTerm andTerm = new AndTerm(bodyTerm, bodyTerm);
+        final AndTerm andTerm = new AndTerm(bodyTerm, extendedModifiedSinceTerm);
         final NotTerm notTerm = new NotTerm(andTerm);
         final Argument args = new Argument();
         args.append(searchSeq.generateSequence(notTerm));
 
         final String searchStr = args.toString();
-        Assert.assertEquals(searchStr, "NOT (BODY test BODY test)", "result mismatched.");
+        Assert.assertEquals(searchStr, "NOT (BODY test MODSEQ 1)", "result mismatched.");
     }
 }

@@ -72,14 +72,8 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     /** Changed Since and space. */
     private static final String CHANGEDSINCE_SP = "CHANGEDSINCE ";
 
-    /** Byte array for Changed Since and space. */
-    private static final byte[] CHANGEDSINCE_SP_B = CHANGEDSINCE_SP.getBytes(StandardCharsets.US_ASCII);
-
     /** Space and vanished. */
     private static final String SP_VANISHED = " VANISHED";
-
-    /** Byte array for space and vanished. */
-    private static final byte[] SP_VANISHED_B = SP_VANISHED.getBytes(StandardCharsets.US_ASCII);
 
     /** Byte array for CR and LF, keeping the array local so it cannot be modified by others. */
     private static final byte[] CRLF_B = { '\r', '\n' };
@@ -103,7 +97,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     private boolean vanished;
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array and the data items.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -114,7 +108,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array and the macro.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -125,29 +119,30 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string and the macro.
      *
      * @param isUid whether prepending UID
-     * @param msgNumbers the set of message set
+     * @param msgNumbers the message numbers string
      * @param macro the macro
      */
     public AbstractFetchCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final FetchMacro macro) {
-        this(isUid, msgNumbers, macro, null, false);
+        this(isUid, msgNumbers, macro, null);
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string and the data items.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
      * @param items the data items
      */
     public AbstractFetchCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final String items) {
-        this(isUid, msgNumbers, items, null, false);
+        this(isUid, msgNumbers, items, null);
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array,
+     * the data items, and changed since the given modification sequence.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -160,7 +155,8 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array, the macro,
+     * and changed since the given modification sequence.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -173,7 +169,8 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the message numbers string, the data items,
+     * and changed since the given modification sequence.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
@@ -186,7 +183,8 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the message numbers string, the macro,
+     * and changed since the given modification sequence.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
@@ -199,13 +197,14 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array, the data items,
+     * changed since the given modification sequence, and the flag to check whether uid fetch with vanished option.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
      * @param items the data items
      * @param changedSince changed since the given modification sequence
-     * @param vanished the flag to check whether uid fetch with vanished option
+     * @param vanished whether uid fetch with vanished option
      */
     public AbstractFetchCommand(final boolean isUid, @Nonnull final MessageNumberSet[] msgsets, @Nonnull final String items,
                                 @Nullable final Long changedSince, final boolean vanished) {
@@ -213,13 +212,14 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array, the macro,
+     * changed since the given modification sequence, and the flag to check whether uid fetch with vanished option.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
      * @param macro the macro
      * @param changedSince changed since the given modification sequence
-     * @param vanished the flag to check whether uid fetch with vanished option
+     * @param vanished whether uid fetch with vanished option
      */
     public AbstractFetchCommand(final boolean isUid, @Nonnull final MessageNumberSet[] msgsets, @Nonnull final FetchMacro macro,
                                 @Nullable final Long changedSince, final boolean vanished) {
@@ -227,13 +227,14 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the message numbers string, the data items,
+     * changed since the given modification sequence, and the flag to check whether uid fetch with vanished option.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
      * @param items the data items
      * @param changedSince changed since the given modification sequence
-     * @param vanished the flag to check whether uid fetch with vanished option
+     * @param vanished whether uid fetch with vanished option
      */
     protected AbstractFetchCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final String items,
                                    @Nullable final Long changedSince, final boolean vanished) {
@@ -246,13 +247,14 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the @{code MessageNumberSet} array.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the message numbers string, the macro,
+     * changed since the given modification sequence, and the flag to check whether uid fetch with vanished option.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
      * @param macro the macro
      * @param changedSince changed since the given modification sequence
-     * @param vanished the flag to check whether uid fetch with vanished option
+     * @param vanished whether uid fetch with vanished option
      */
     protected AbstractFetchCommand(final boolean isUid, @Nonnull final String msgNumbers, @Nonnull final FetchMacro macro,
                                    @Nullable final Long changedSince, final boolean vanished) {
@@ -275,32 +277,37 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
 
     @Override
     public ByteBuf getCommandLineBytes() {
-        final ByteBuf sb = Unpooled.buffer();
-        sb.writeBytes(isUid ? UID_FETCH_SP_B : FETCH_SP_B);
-        sb.writeBytes(msgNumbers.getBytes(StandardCharsets.US_ASCII));
-        sb.writeByte(ImapClientConstants.SPACE);
-
+        // Ex:UID FETCH 300:500 (FLAGS) (CHANGEDSINCE 1234 VANISHED)
+        final StringBuilder sb = new StringBuilder();
+        sb.append(msgNumbers);
+        sb.append(ImapClientConstants.SPACE);
         if (dataItems != null) {
-            sb.writeByte(ImapClientConstants.L_PAREN);
-            sb.writeBytes(dataItems.getBytes(StandardCharsets.US_ASCII));
-            sb.writeByte(ImapClientConstants.R_PAREN);
+            sb.append(ImapClientConstants.L_PAREN);
+            sb.append(dataItems);
+            sb.append(ImapClientConstants.R_PAREN);
         } else {
-            sb.writeBytes(macro.name().getBytes(StandardCharsets.US_ASCII));
+            sb.append(macro.name());
         }
 
         if (changedSince != null) {
-            sb.writeByte(ImapClientConstants.SPACE);
-            sb.writeByte(ImapClientConstants.L_PAREN);
-            sb.writeBytes(CHANGEDSINCE_SP_B);
-            sb.writeBytes(String.valueOf(changedSince).getBytes(StandardCharsets.US_ASCII));
+            sb.append(ImapClientConstants.SPACE);
+            sb.append(ImapClientConstants.L_PAREN);
+            sb.append(CHANGEDSINCE_SP);
+            sb.append(changedSince);
             if (vanished) {
-                sb.writeBytes(SP_VANISHED_B);
+                sb.append(SP_VANISHED);
             }
-            sb.writeByte(ImapClientConstants.R_PAREN);
+            sb.append(ImapClientConstants.R_PAREN);
         }
 
-        sb.writeBytes(CRLF_B);
+        final String fetchCmdStr = sb.toString();
+        final int len = ImapClientConstants.PAD_LEN  + fetchCmdStr.length();
+        final ByteBuf byteBuf = Unpooled.buffer(len);
+        byteBuf.writeBytes(isUid ? UID_FETCH_SP_B : FETCH_SP_B);
+        byteBuf.writeBytes(fetchCmdStr.getBytes(StandardCharsets.US_ASCII));
 
-        return sb;
+        byteBuf.writeBytes(CRLF_B);
+
+        return byteBuf;
     }
 }

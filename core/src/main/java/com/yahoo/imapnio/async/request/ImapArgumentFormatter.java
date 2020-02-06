@@ -1,6 +1,5 @@
 package com.yahoo.imapnio.async.request;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
@@ -229,17 +228,30 @@ public class ImapArgumentFormatter {
     }
 
     /**
-     * Creates an IMAP entry-flag-name from the given Flag object.
+     * Creates an IMAP entry-flag-name from the given Flag object. The following is the ABNF from RFC7162
+     * <pre>
+     * entry-flag-name     = DQUOTE "/flags/" attr-flag DQUOTE
+     *                        ;; Each system or user-defined flag <flag>
+     *                        ;; is mapped to "/flags/<flag>".
+     *                        ;;
+     *                        ;; <entry-flag-name> follows the escape rules
+     *                        ;; used by "quoted" string as described in
+     *                        ;; Section 4.3 of [RFC3501]; e.g., for the
+     *                        ;; flag \Seen, the corresponding <entry-name>
+     *                        ;; is "/flags/\\seen", and for the flag
+     *                        ;; $MDNSent, the corresponding <entry-name>
+     *                        ;; is "/flags/$mdnsent".
+     * </pre>
      *
      * @param flag the flags with one flag
      * @throws ImapAsyncClientException when the number of flags is larger than 1
      * @return the entry flag name string
      */
-     String buildEntryFlagName(@Nonnull final Flags flag) throws IOException {
+     String buildEntryFlagName(@Nonnull final Flags flag) throws ImapAsyncClientException {
         final Flags.Flag[] sf = flag.getSystemFlags(); // get the system flags
         final String[] uf = flag.getUserFlags(); // get the user flag strings
         if (sf.length + uf.length != 1) {
-            throw new IOException("Only one flag is allowed.");
+            throw new ImapAsyncClientException(ImapAsyncClientException.FailureType.INVALID_INPUT);
         }
         final StringBuilder sb = new StringBuilder();
         sb.append(ImapClientConstants.DQUOTA);

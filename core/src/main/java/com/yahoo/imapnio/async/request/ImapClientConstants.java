@@ -48,7 +48,6 @@ final class ImapClientConstants {
     static final int PAD_LEN = 100;
 
     /** Literal for double quota. */
-    // TODO: Reorder constants and replace hardcode DQUOTA
     static final char DQUOTA = '\"';
 
     /** Literal for back slash. */

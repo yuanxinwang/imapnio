@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.mail.Flags;
+import javax.mail.search.BodyTerm;
 import javax.mail.search.FlagTerm;
+import javax.mail.search.OrTerm;
 import javax.mail.search.SearchException;
 import javax.mail.search.SubjectTerm;
 
@@ -329,6 +331,33 @@ public class SearchCommandTest {
         final MessageNumberSet[] msgsets = null;
         final ImapRequest cmd = new SearchCommand(msgsets, extendedModifiedSinceTerm, null);
         Assert.assertEquals(cmd.getCommandLine(), "SEARCH MODSEQ \"/flags/\\\\Draft\" SHARED 1\r\n", "Expected result mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with null message sequences set, MODSEQ SearchTerm with entry name and entry type.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineOrNonNullModSeqWithFlagDraftTypeShared() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException, ImapAsyncClientException {
+        final Flags flags = new Flags();
+        flags.add(Flags.Flag.DRAFT);
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(flags, EntryTypeReq.SHARED, 1L);
+        final BodyTerm bodyTerm = new BodyTerm("Text");
+        final OrTerm orTerm = new OrTerm(extendedModifiedSinceTerm, bodyTerm);
+        final MessageNumberSet[] msgsets = null;
+        final ImapRequest cmd = new SearchCommand(msgsets, orTerm, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH OR MODSEQ \"/flags/\\\\Draft\" SHARED 1 BODY Text\r\n", "Expected result mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.

@@ -227,7 +227,7 @@ public class ImapArgumentFormatterTest {
      * @throws IOException will not throw
      */
     @Test
-    public void testbuildEntryFlagName() throws IOException {
+    public void testbuildEntryFlagName() throws ImapAsyncClientException {
         final String[] expectedFlags = "\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen".split(" ");
         final Flags flags = new Flags();
         flags.add(Flags.Flag.ANSWERED);
@@ -247,10 +247,11 @@ public class ImapArgumentFormatterTest {
         }
 
         final String[] userFlags = flags.getUserFlags();
-        Assert.assertEquals(userFlags.length, 1, "result mismatched");
         final Flags singleUserFlag = new Flags();
         singleUserFlag.add(userFlags[0]);
         final String userEntryName = writer.buildEntryFlagName(singleUserFlag);
+
+        Assert.assertEquals(userFlags.length, 1, "result mismatched");
         Assert.assertEquals(userEntryName, "\"/flags/userflag1\"", "result mismatched");
     }
 
@@ -262,11 +263,11 @@ public class ImapArgumentFormatterTest {
         final Flags flags = new Flags();
         flags.add(Flags.Flag.ANSWERED);
         flags.add(Flags.Flag.DELETED);
-        IOException actual = null;
+        ImapAsyncClientException actual = null;
         final ImapArgumentFormatter writer = new ImapArgumentFormatter();
         try {
             writer.buildEntryFlagName(flags);
-        } catch (IOException e) {
+        } catch (ImapAsyncClientException e) {
             actual = e;
         }
         Assert.assertNotNull(actual, "Should throw exception");

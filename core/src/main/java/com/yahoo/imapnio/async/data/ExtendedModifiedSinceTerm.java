@@ -110,18 +110,15 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
 
     /**
      * The match method.
-     * TODO: Require to extend IMAP Message to support entry name and type for matching.
      *
      * @param msg the date comparator is applied to this Message's MODSEQ
      * @return true if the comparison succeeds, otherwise false
      */
     @Override
     public boolean match(final Message msg) {
-        long m;
-
         try {
             if (msg instanceof IMAPMessage) {
-                m = ((IMAPMessage) msg).getModSeq();
+                final long m = ((IMAPMessage) msg).getModSeq();
                 return m >= modSeq;
             } else {
                 return false;

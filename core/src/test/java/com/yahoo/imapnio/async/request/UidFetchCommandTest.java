@@ -333,7 +333,7 @@ public class UidFetchCommandTest {
         final FetchMacro stateFast = FetchMacro.valueOf("FAST");
         Assert.assertSame(stateFast, FetchMacro.FAST, "Enum does not match.");
         // values below cannot be changed
-        final  FetchMacro stateFull = FetchMacro.valueOf("FULL");
+        final FetchMacro stateFull = FetchMacro.valueOf("FULL");
         Assert.assertSame(stateFull, FetchMacro.FULL, "Enum does not match.");
     }
 }

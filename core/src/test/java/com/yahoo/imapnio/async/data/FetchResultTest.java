@@ -2,6 +2,7 @@ package com.yahoo.imapnio.async.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -22,18 +23,14 @@ public class FetchResultTest {
     @Test
     public void testFetchhResult() throws IOException, ProtocolException {
         final IMAPResponse imapResponse = new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))");
-        final List<IMAPResponse> expectedFetchResponses = new ArrayList<>();
-        expectedFetchResponses.add(imapResponse);
-        final List<Long> modifiedMsgNums = new ArrayList<>();
-        modifiedMsgNums.add(1L);
-        final FetchResult infos = new FetchResult(1L, expectedFetchResponses);
+        final List<IMAPResponse> expectedFetchResponses = Collections.singletonList(imapResponse);
+        final FetchResult infos = new FetchResult(expectedFetchResponses);
         final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
-        final long highestModSeq = infos.getHighestModSeq();
         final FetchResponse actualFetchResponse = new FetchResponse(fetchResponsesResult.get(0));
         final long fetchedModSeq = actualFetchResponse.getItem(MODSEQ.class).modseq;
+
         Assert.assertEquals(fetchResponsesResult.size(), 1, "Result mismatched.");
         Assert.assertEquals(fetchedModSeq, 12121231000L, "Result mismatched.");
-        Assert.assertEquals(highestModSeq, 1L, "Result mismatched.");
     }
 
     /**
@@ -43,8 +40,6 @@ public class FetchResultTest {
     public void testFetchhResultNullHighestModSeq() {
         final FetchResult infos = new FetchResult(new ArrayList<>());
         final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
-        final Long highestModSeq = infos.getHighestModSeq();
         Assert.assertEquals(fetchResponsesResult.size(), 0, "Result mismatched.");
-        Assert.assertNull(highestModSeq, "Result mismatched.");
     }
 }

@@ -508,7 +508,7 @@ public class ImapResponseMapper {
                         highestModSeq = sr.readLong();
                     } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
                         final String modifiedSeqStr = sr.readAtom();
-                        final String[] modifiedSeqArray = modifiedSeqStr.replace("[", "").split(",");
+                        final String[] modifiedSeqArray = modifiedSeqStr.split(",");
                         for (final String str: modifiedSeqArray) {
                             modifiedMessageIdList.add(Long.valueOf(str));
                         }
@@ -539,24 +539,18 @@ public class ImapResponseMapper {
             }
             final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
 
-            Long highestModSeq = null;
-
             for (final IMAPResponse sr: ir) {
                 if (sr.isOK()) {
                     sr.skipSpaces();
                     if (sr.readByte() != (byte) L_BRACKET) {
                         continue;
                     }
-                    final String s = sr.readAtom();
-                    if (s.equalsIgnoreCase("HIGHESTMODSEQ")) {
-                        highestModSeq = sr.readLong();
-                    }
                 } else {
                     imapResponses.add(sr);
                 }
             }
 
-            return new FetchResult(highestModSeq, imapResponses);
+            return new FetchResult(imapResponses);
         }
     }
 }
