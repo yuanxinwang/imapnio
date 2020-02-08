@@ -97,7 +97,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     private boolean vanished;
 
     /**
-     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array and the data items.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array, and the data items.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -108,7 +108,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array and the macro.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the @{code MessageNumberSet} array, and the macro.
      *
      * @param isUid whether prepending UID
      * @param msgsets the set of message set
@@ -119,7 +119,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string and the macro.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string, and the macro.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string
@@ -130,7 +130,7 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string and the data items.
+     * Initializes a @{code FetchCommand} with the flag indicate whether prepending UID, the the message numbers string, and the data items.
      *
      * @param isUid whether prepending UID
      * @param msgNumbers the message numbers string

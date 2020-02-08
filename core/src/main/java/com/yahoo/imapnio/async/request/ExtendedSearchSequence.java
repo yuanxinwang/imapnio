@@ -17,7 +17,7 @@ import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
  */
 public class ExtendedSearchSequence extends SearchSequence {
 
-    /** Literal for NOMODSEQ. */
+    /** Literal for MODSEQ. */
     private static final String MODSEQ = "MODSEQ";
 
     /**

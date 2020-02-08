@@ -27,6 +27,7 @@ import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
 import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
 import com.yahoo.imapnio.async.data.ListInfoList;
+import com.yahoo.imapnio.async.data.MessageNumberSet;
 import com.yahoo.imapnio.async.data.SearchResult;
 import com.yahoo.imapnio.async.data.StoreResult;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
@@ -493,8 +494,8 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
-            final List<Long> modifiedMessageIdList = new ArrayList<>(); // will always return a non-null array
 
+            MessageNumberSet[] modifiedMsgsets = null; // only one response will contain modified numbers
             Long highestModSeq = null;
 
             for (final IMAPResponse sr: ir) {
@@ -507,18 +508,14 @@ public class ImapResponseMapper {
                     if (sr.isOK() && responseCode.equalsIgnoreCase("HIGHESTMODSEQ")) {
                         highestModSeq = sr.readLong();
                     } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
-                        final String modifiedSeqStr = sr.readAtom();
-                        final String[] modifiedSeqArray = modifiedSeqStr.split(",");
-                        for (final String str: modifiedSeqArray) {
-                            modifiedMessageIdList.add(Long.valueOf(str));
-                        }
+                        modifiedMsgsets = MessageNumberSet.buildMessageNumberSets(sr.readAtom());
                     }
                 } else {
                     imapResponses.add(sr);
                 }
             }
 
-            return new StoreResult(highestModSeq, imapResponses, modifiedMessageIdList);
+            return new StoreResult(highestModSeq, imapResponses, modifiedMsgsets);
         }
 
         /**

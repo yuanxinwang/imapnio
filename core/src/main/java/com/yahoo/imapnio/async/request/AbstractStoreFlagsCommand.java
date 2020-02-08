@@ -68,7 +68,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
     /** Literal for .SILENT to append after FLAGS. */
     private static final String SILENT = ".SILENT";
 
-    /** Literal for UNCHANGED SINCE. */
+    /** Literal for UNCHANGEDSINCE. */
     private static final String UNCHANGEDSINCE = "UNCHANGEDSINCE";
 
     /** Unchanged since the modification seqeuence. */
@@ -121,8 +121,8 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code AbstractStoreFlagsCommand} with string form message numbers (could be sequence sets or UIDs) and all other parameters.
-     * except unchanged since the given modification sequence
+     * Initializes a @{code AbstractStoreFlagsCommand} with string form message numbers (could be sequence sets or UIDs), flags, action,
+     * and silent flag whether server should return new value.
      *
      * @param isUid whether to have UID prepended
      * @param msgNumbers the message id
@@ -141,7 +141,8 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
     }
 
     /**
-     * Initializes a @{code AbstractStoreFlagsCommand} with string form message numbers (could be sequence sets or UIDs) and all other parameters.
+     * Initializes a @{code AbstractStoreFlagsCommand} with string form message numbers (could be sequence sets or UIDs), flags, action,
+     * silent flag whether server should return new values, and unchanged since the given modification sequence.
      *
      * @param isUid whether to have UID prepended
      * @param msgNumbers the message id
