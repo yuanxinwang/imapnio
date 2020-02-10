@@ -9,18 +9,20 @@ import com.sun.mail.imap.protocol.IMAPResponse;
 
 /**
  * This class provides the highest modification sequence, the list of IMAP responses, and the list of modified messages number
- * from store command response based on RFC3501 and RFC7162 as following except NOMODSEQ for Select/Examine responses only.
+ * from store command response based on RFC3501 and RFC7162 as following.
  *
  * <pre>
  * resp-text-code      =/ "HIGHESTMODSEQ" SP mod-sequence-value /
- *                        "NOMODSEQ" /
  *                        "MODIFIED" SP sequence-set
  * </pre>
  */
-public class StoreResult extends FetchResult {
+public class StoreResult {
 
-    /** The highest modification sequence, null when Fetch command doesn't contain CHANGEDSINCE or Mailbox doesn't support MODSEQ. **/
+    /** The highest modification sequence. */
     private Long highestModSeq;
+
+    /** The collection of IMAP responses. */
+    private final List<IMAPResponse> imapResponses;
 
     /** The collection of message number as sequence-set, only shown when CondStore is enabled. */
     private final MessageNumberSet[] modifiedMsgSets;
@@ -31,22 +33,31 @@ public class StoreResult extends FetchResult {
      * @param imapResponses collection of IMAP responses from store command result
      */
     public StoreResult(@Nonnull final List<IMAPResponse> imapResponses) {
-        super(imapResponses);
         this.highestModSeq = null;
+        this.imapResponses = imapResponses;
         this.modifiedMsgSets = null;
     }
 
     /**
-     * Initializes a {@code StoreResult} object with IMAP responses collection,
-     * and modified message number collection.
+     * Initializes a {@code StoreResult} object with IMAP responses collection and modified message number collection.
      *
      * @param imapResponses collection of IMAP responses from store command result
      * @param modifiedMsgSets collection of modified message number from store command result
      */
     public StoreResult(@Nonnull final List<IMAPResponse> imapResponses, @Nonnull final MessageNumberSet[] modifiedMsgSets) {
-        super(imapResponses);
         this.highestModSeq = null;
+        this.imapResponses = imapResponses;
         this.modifiedMsgSets = modifiedMsgSets;
+    }
+
+    /**
+     * Initializes a {@code StoreResult} object with the highest modification sequence and IMAP responses collection.
+     *
+     * @param highestModSeq the highest modification from store command result
+     * @param imapResponses collection of IMAP responses from store command result
+     */
+    public StoreResult(@Nonnull final Long highestModSeq, @Nonnull final List<IMAPResponse> imapResponses) {
+        this(highestModSeq, imapResponses, null);
     }
 
     /**
@@ -59,8 +70,8 @@ public class StoreResult extends FetchResult {
      */
     public StoreResult(@Nonnull final Long highestModSeq, @Nonnull final List<IMAPResponse> imapResponses,
                        @Nullable final MessageNumberSet[] modifiedMsgSets) {
-        super(imapResponses);
         this.highestModSeq = highestModSeq;
+        this.imapResponses = imapResponses;
         this.modifiedMsgSets = modifiedMsgSets;
     }
 
@@ -70,6 +81,14 @@ public class StoreResult extends FetchResult {
     @Nullable
     public Long getHighestModSeq() {
         return highestModSeq;
+    }
+
+    /**
+     * @return IMAP responses collection from store or UID store command result
+     */
+    @Nonnull
+    public List<IMAPResponse> getIMAPResponses() {
+        return imapResponses;
     }
 
     /**

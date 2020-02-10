@@ -17,6 +17,7 @@ import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.iap.Response;
 import com.sun.mail.imap.AppendUID;
 import com.sun.mail.imap.CopyUID;
+import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.IMAPResponse;
 import com.sun.mail.imap.protocol.ListInfo;
 import com.sun.mail.imap.protocol.MailboxInfo;
@@ -485,12 +486,14 @@ public class ImapResponseMapper {
          * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
          */
         @Nonnull
-        private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
+        private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
             if (ir.length < 1) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            if (taggedResponse.isBAD()) {
+            taggedResponse.skipSpaces();
+            final byte bracket = taggedResponse.peekByte();
+            if (!taggedResponse.isOK() && bracket != (byte) L_BRACKET) { // BAD or NO without MODIFIED
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
@@ -499,18 +502,22 @@ public class ImapResponseMapper {
             Long highestModSeq = null;
 
             for (final IMAPResponse sr: ir) {
-                if (sr.isOK() || sr.isNO()) { // "The MODIFIED response code MAY also be returned in the tagged NO response"
-                    sr.skipSpaces();
-                    if (sr.readByte() != (byte) L_BRACKET) {
-                        continue;
-                    }
+                if (sr.keyEquals("FETCH")) {
+                    imapResponses.add(new FetchResponse(sr));
+                    continue;
+                }
+
+                sr.skipSpaces();
+                if (sr.readByte() == (byte) L_BRACKET) { // HIGHESTMODSEQ or MODIFIED
                     final String responseCode = sr.readAtom();
                     if (sr.isOK() && responseCode.equalsIgnoreCase("HIGHESTMODSEQ")) {
                         highestModSeq = sr.readLong();
                     } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
                         modifiedMsgsets = MessageNumberSet.buildMessageNumberSets(sr.readAtom());
+                    } else { // OK or NO with '[' but response code is not recognized.
+                        throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
                     }
-                } else {
+                } else { // OK, Vanished, or Expunge Responses
                     imapResponses.add(sr);
                 }
             }
@@ -526,7 +533,7 @@ public class ImapResponseMapper {
          * @throws ImapAsyncClientException when tagged response is not OK or given response length is 0
          */
         @Nonnull
-        private FetchResult parseToFetchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
+        private FetchResult parseToFetchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
             if (ir.length < 1) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
@@ -537,11 +544,8 @@ public class ImapResponseMapper {
             final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
 
             for (final IMAPResponse sr: ir) {
-                if (sr.isOK()) {
-                    sr.skipSpaces();
-                    if (sr.readByte() != (byte) L_BRACKET) {
-                        continue;
-                    }
+                if (sr.keyEquals("FETCH")) {
+                    imapResponses.add(new FetchResponse(sr));
                 } else {
                     imapResponses.add(sr);
                 }

@@ -45,18 +45,35 @@ public class StoreResultTest {
     }
 
     /**
-     * Tests StoreResult constructor and getters when passing null highest mod sequence, empty fetch responses collection,
+     * Tests StoreResult constructor and getters when not passing highest mod sequence, empty fetch responses collection,
      * and empty modified message number collection.
      */
     @Test
-    public void testStoreResultNullHighestModSeq() {
-        final StoreResult infos = new StoreResult(new ArrayList<>(), null);
+    public void testStoreResultIgnoreHighestModSeq() {
+        final MessageNumberSet[] msgSets = new MessageNumberSet[0];
+        final StoreResult infos = new StoreResult(new ArrayList<>(), msgSets);
         final MessageNumberSet[] modifiedMsgsets = infos.getModifiedMsgSets();
-        final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
+        final List<IMAPResponse>responses = infos.getIMAPResponses();
         final Long highestModSeq = infos.getHighestModSeq();
 
         Assert.assertNull(highestModSeq, "Result mismatched.");
-        Assert.assertEquals(fetchResponsesResult.size(), 0, "Result mismatched.");
+        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
+        Assert.assertEquals(modifiedMsgsets.length, 0, "Result mismatched.");
+    }
+
+    /**
+     * Tests StoreResult constructor and getters when passing highest mod sequence, empty fetch responses collection,
+     * and not passing modified message number collection.
+     */
+    @Test
+    public void testStoreResultIgnoreModifiedMessage() {
+        final StoreResult infos = new StoreResult(1L, new ArrayList<>());
+        final MessageNumberSet[] modifiedMsgsets = infos.getModifiedMsgSets();
+        final List<IMAPResponse>responses = infos.getIMAPResponses();
+        final long highestModSeq = infos.getHighestModSeq();
+
+        Assert.assertEquals(highestModSeq, 1L, "Result mismatched.");
+        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
         Assert.assertNull(modifiedMsgsets, "Result mismatched.");
     }
 
@@ -68,11 +85,11 @@ public class StoreResultTest {
     public void testStoreResultNullModifiedMessage() {
         final StoreResult infos = new StoreResult(new ArrayList<>());
         final MessageNumberSet[] modifiedMsgsets = infos.getModifiedMsgSets();
-        final List<IMAPResponse>fetchResponsesResult = infos.getIMAPResponses();
+        final List<IMAPResponse>responses = infos.getIMAPResponses();
         final Long highestModSeq = infos.getHighestModSeq();
 
         Assert.assertNull(highestModSeq, "Result mismatched.");
-        Assert.assertEquals(fetchResponsesResult.size(), 0, "Result mismatched.");
+        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
         Assert.assertNull(modifiedMsgsets, "Result mismatched.");
     }
 }
