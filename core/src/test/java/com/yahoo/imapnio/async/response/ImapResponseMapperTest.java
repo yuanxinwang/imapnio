@@ -1169,12 +1169,12 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(storeResult, "store result mismatched.");
         Assert.assertEquals(storeResult.getHighestModSeq(), Long.valueOf(2682), "getHighestModSeq() mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().size(), 3, "getIMAPResponses() mismatched.");
-        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(0)).getItem(MODSEQ.class).modseq,
-                2529L, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(storeResult.getIMAPResponses().size(), 5, "getIMAPResponses() mismatched.");
         Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(1)).getItem(MODSEQ.class).modseq,
-                2531L, "getIMAPResponses() mismatched.");
+                2529L, "getIMAPResponses() mismatched.");
         Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(2)).getItem(MODSEQ.class).modseq,
+                2531L, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(3)).getItem(MODSEQ.class).modseq,
                 2648L, "getIMAPResponses() mismatched.");
         Assert.assertNotNull(storeResult.getModifiedMsgSets(), "getModifiedMsgsets() mismatched");
         Assert.assertEquals(storeResult.getModifiedMsgSets().length, 1, "getModifiedMsgsets() mismatched");
@@ -1203,12 +1203,12 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(storeResult, "store result mismatched.");
         Assert.assertEquals(storeResult.getHighestModSeq(), Long.valueOf(2682), "getHighestModSeq() mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().size(), 3, "getIMAPResponses() mismatched.");
-        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(0)).getItem(MODSEQ.class).modseq,
-                2529L, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(storeResult.getIMAPResponses().size(), 5, "getIMAPResponses() mismatched.");
         Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(1)).getItem(MODSEQ.class).modseq,
-                2531L, "getIMAPResponses() mismatched.");
+                2529L, "getIMAPResponses() mismatched.");
         Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(2)).getItem(MODSEQ.class).modseq,
+                2531L, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(3)).getItem(MODSEQ.class).modseq,
                 2648L, "getIMAPResponses() mismatched.");
         Assert.assertNotNull(storeResult.getModifiedMsgSets(), "getModifiedMsgsets() mismatched");
         Assert.assertEquals(storeResult.getModifiedMsgSets().length, 2, "getModifiedMsgsets() mismatched");
@@ -1237,11 +1237,11 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(storeResult, "store result mismatched.");
         Assert.assertEquals(storeResult.getHighestModSeq(), Long.valueOf(2682), "getHighestModSeq() mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().size(), 3, "getIMAPResponses() mismatched.");
-        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(0)).getItem(MODSEQ.class).modseq,
+        Assert.assertEquals(storeResult.getIMAPResponses().size(), 5, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(((FetchResponse) storeResult.getIMAPResponses().get(1)).getItem(MODSEQ.class).modseq,
                 2529L, "getIMAPResponses() mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().get(1).getKey(), "EXPUNGE", "getIMAPResponses() mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().get(2).getKey(), "VANISHED", "getIMAPResponses() mismatched.");
+        Assert.assertEquals(storeResult.getIMAPResponses().get(2).getKey(), "EXPUNGE", "getIMAPResponses() mismatched.");
+        Assert.assertEquals(storeResult.getIMAPResponses().get(3).getKey(), "VANISHED", "getIMAPResponses() mismatched.");
         Assert.assertNotNull(storeResult.getModifiedMsgSets(), "getModifiedMsgsets() mismatched");
         Assert.assertEquals(storeResult.getModifiedMsgSets().length, 3, "getModifiedMsgsets() mismatched");
         final String msgSets = MessageNumberSet.buildString(storeResult.getModifiedMsgSets());
@@ -1307,7 +1307,7 @@ public class ImapResponseMapperTest {
 
         // verify the result
         Assert.assertNotNull(storeResult, "store result mismatched.");
-        Assert.assertEquals(storeResult.getIMAPResponses().size(), 0, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(storeResult.getIMAPResponses().size(), 1, "getIMAPResponses() mismatched.");
         Assert.assertEquals(storeResult.getModifiedMsgSets().length, 1, "getModifiedMsgsets() mismatched.");
         Assert.assertEquals(MessageNumberSet.buildString(storeResult.getModifiedMsgSets()), "2", "getModifiedMsgsets() mismatched.");
     }

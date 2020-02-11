@@ -483,7 +483,7 @@ public class ImapResponseMapper {
          *
          * @param ir the list of responses from Store or UID Store command, the input responses array should contain the tagged/final one
          * @return StoreResult object constructed based on the given IMAPResponse array,
-         * @throws ImapAsyncClientException when tagged response is not OK and NO or given response length is 0
+         * @throws ImapAsyncClientException when tagged response is bad or given response length is 0
          */
         @Nonnull
         private StoreResult parseToStoreResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException, IOException, ProtocolException {
@@ -491,12 +491,10 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            taggedResponse.skipSpaces();
-            final byte bracket = taggedResponse.peekByte();
-            if (!taggedResponse.isOK() && bracket != (byte) L_BRACKET) { // BAD or NO without MODIFIED
+            if (taggedResponse.isBAD()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
-            final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
+            final List<IMAPResponse> imapResponses = new ArrayList<>(ir.length); // will always return a non-null array
 
             MessageNumberSet[] modifiedMsgsets = null; // only one response will contain modified numbers
             Long highestModSeq = null;
@@ -514,12 +512,11 @@ public class ImapResponseMapper {
                         highestModSeq = sr.readLong();
                     } else if (responseCode.equalsIgnoreCase("MODIFIED")) {
                         modifiedMsgsets = MessageNumberSet.buildMessageNumberSets(sr.readAtom());
-                    } else { // OK or NO with '[' but response code is not recognized.
-                        throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
                     }
-                } else { // OK, Vanished, or Expunge Responses
-                    imapResponses.add(sr);
                 }
+
+                // OK, Vanished, or Expunge
+                imapResponses.add(sr);
             }
 
             return new StoreResult(highestModSeq, imapResponses, modifiedMsgsets);
@@ -538,10 +535,10 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            if (!taggedResponse.isOK()) {
+            if (taggedResponse.isBAD()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
-            final List<IMAPResponse> imapResponses = new ArrayList<>(); // will always return a non-null array
+            final List<IMAPResponse> imapResponses = new ArrayList<>(ir.length); // will always return a non-null array
 
             for (final IMAPResponse sr: ir) {
                 if (sr.keyEquals("FETCH")) {
