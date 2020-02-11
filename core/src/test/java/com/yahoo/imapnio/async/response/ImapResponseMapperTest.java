@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import com.sun.mail.iap.ProtocolException;
 import com.sun.mail.imap.AppendUID;
 import com.sun.mail.imap.CopyUID;
+import com.sun.mail.imap.protocol.FetchItem;
 import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.ID;
 import com.sun.mail.imap.protocol.IMAPResponse;
@@ -1249,6 +1250,30 @@ public class ImapResponseMapperTest {
     }
 
     /**
+     * Tests parseStore method successfully.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseStoreWithFetchExtension() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[2];
+        content[0] = new IMAPResponse("* 1 FETCH (FLAGS (\\Seen SEEN) MODSEQ (2529))");
+        content[1] = new IMAPResponse("a4 OK Success");
+        final StoreResult storeResult = mapper.readValue(content, StoreResult.class, new FetchItem[0]);
+        final List<IMAPResponse> irs = storeResult.getIMAPResponses();
+        final FetchResponse fr1 = (FetchResponse) irs.get(0);
+
+        // verify the result
+        Assert.assertNotNull(storeResult, "store result mismatched.");
+        Assert.assertEquals(irs.size(), 2, "store result mismatched.");
+        Assert.assertEquals(irs.get(0).getKey(), "FETCH", "FETCH IMAP response mismatched.");
+        Assert.assertEquals(fr1.getItem(MODSEQ.class).modseq, 2529L, "getIMAPResponses() mismatched.");
+    }
+
+    /**
      * Tests parseStore method with not OK response.
      *
      * @throws IOException will not throw
@@ -1432,5 +1457,29 @@ public class ImapResponseMapperTest {
         Assert.assertEquals(irs.get(2).getKey(), "EXPUNGE", "EXPUNGE IMAP response mismatched.");
         Assert.assertEquals(irs.get(3).getKey(), "FETCH", "FETCH IMAP response mismatched.");
         Assert.assertEquals(irs.get(4).getKey(), "FETCH", "FETCH IMAP response mismatched.");
+    }
+
+    /**
+     * Tests parseFetch method successfully.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseFetchExtension() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[2];
+        content[0] = new IMAPResponse("* 1 FETCH (FLAGS (\\Seen SEEN) MODSEQ (2529))");
+        content[1] = new IMAPResponse("a4 OK Success");
+        final FetchResult fetchResult = mapper.readValue(content, FetchResult.class, new FetchItem[0]);
+        final List<IMAPResponse> irs = fetchResult.getIMAPResponses();
+        final FetchResponse fr1 = (FetchResponse) irs.get(0);
+
+        // verify the result
+        Assert.assertNotNull(fetchResult, "fetch result mismatched.");
+        Assert.assertEquals(irs.size(), 2, "fetch result mismatched.");
+        Assert.assertEquals(irs.get(0).getKey(), "FETCH", "FETCH IMAP response mismatched.");
+        Assert.assertEquals(fr1.getItem(MODSEQ.class).modseq, 2529L, "getIMAPResponses() mismatched.");
     }
 }
