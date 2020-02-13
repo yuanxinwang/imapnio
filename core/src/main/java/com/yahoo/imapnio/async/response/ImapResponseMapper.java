@@ -74,12 +74,11 @@ public class ImapResponseMapper {
      * @return the serialized object
      * @throws ImapAsyncClientException when target class to covert to is not supported
      * @throws ProtocolException if underlying input contains invalid content of type for the returned type
-     * @throws IOException when fetch response cannot be casted to the expected item
      */
     @SuppressWarnings("unchecked")
     @Nonnull
     public <T> T readValue(@Nonnull final IMAPResponse[] content, @Nonnull final Class<T> valueType)
-            throws ImapAsyncClientException, ProtocolException, IOException {
+            throws ImapAsyncClientException, ProtocolException {
         if (valueType == Capability.class) {
             return (T) parser.parseToCapabilities(content);
         }
@@ -558,7 +557,7 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final Response taggedResponse = ir[ir.length - 1];
-            if (taggedResponse.isBAD()) {
+            if (!taggedResponse.isOK()) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<IMAPResponse> imapResponses = new ArrayList<>(ir.length); // will always return a non-null array

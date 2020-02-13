@@ -223,11 +223,9 @@ public class ImapArgumentFormatterTest {
 
     /**
      * Tests buildEntryFlagName with all flags.
-     *
-     * @throws IOException will not throw
      */
     @Test
-    public void testbuildEntryFlagName() throws ImapAsyncClientException {
+    public void testbuildEntryFlagName() {
         final String[] expectedFlags = "\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen".split(" ");
         final Flags flags = new Flags();
         flags.add(Flags.Flag.ANSWERED);
@@ -253,23 +251,5 @@ public class ImapArgumentFormatterTest {
 
         Assert.assertEquals(userFlags.length, 1, "result mismatched");
         Assert.assertEquals(userEntryName, "\"/flags/userflag1\"", "result mismatched");
-    }
-
-    /**
-     * Tests buildEntryFlagName with exception.
-     */
-    @Test
-    public void testbuildEntryFlagNameFailed() {
-        final Flags flags = new Flags();
-        flags.add(Flags.Flag.ANSWERED);
-        flags.add(Flags.Flag.DELETED);
-        ImapAsyncClientException actual = null;
-        final ImapArgumentFormatter writer = new ImapArgumentFormatter();
-        try {
-            writer.buildEntryFlagName(flags);
-        } catch (ImapAsyncClientException e) {
-            actual = e;
-        }
-        Assert.assertNotNull(actual, "Should throw exception");
     }
 }
