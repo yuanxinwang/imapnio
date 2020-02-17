@@ -181,7 +181,7 @@ public class ImapArgumentFormatter {
      * @param flags the flags
      * @return the flag list string
      */
-    String buildFlagListString(@Nonnull final Flags flags) {
+    String buildFlagString(@Nonnull final Flags flags) {
         final StringBuilder sb = new StringBuilder();
         sb.append(ImapClientConstants.L_PAREN); // start of flag_list
 

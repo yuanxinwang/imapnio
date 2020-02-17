@@ -189,10 +189,10 @@ public class ImapArgumentFormatterTest {
     }
 
     /**
-     * Tests buildFlagListString with all flags.
+     * Tests buildFlagString with all flags.
      */
     @Test
-    public void testBuildFlagListString() {
+    public void testBuildFlagString() {
         final Flags flags = new Flags();
         flags.add(Flags.Flag.ANSWERED);
         flags.add(Flags.Flag.DELETED);
@@ -202,7 +202,7 @@ public class ImapArgumentFormatterTest {
         flags.add(Flags.Flag.SEEN);
         flags.add(Flags.Flag.USER); // for continue
         final ImapArgumentFormatter writer = new ImapArgumentFormatter();
-        final String s = writer.buildFlagListString(flags);
+        final String s = writer.buildFlagString(flags);
         Assert.assertNotNull(s, "buildFlagString() should not return null.");
         Assert.assertEquals(s, "(\\Answered \\Deleted \\Draft \\Flagged \\Recent \\Seen)", "result mismatched.");
     }
@@ -216,7 +216,7 @@ public class ImapArgumentFormatterTest {
         flags.add("userflag1");
         flags.add("userflag2");
         final ImapArgumentFormatter writer = new ImapArgumentFormatter();
-        final String s = writer.buildFlagListString(flags);
+        final String s = writer.buildFlagString(flags);
         Assert.assertNotNull(s, "buildFlagString() should not return null.");
         Assert.assertEquals(s, "(userflag1 userflag2)", "result mismatched.");
     }

@@ -182,7 +182,7 @@ public abstract class AbstractStoreFlagsCommand extends ImapRequestAdapter {
     public ByteBuf getCommandLineBytes() {
         // Ex:STORE 2:4 +FLAGS (\Deleted)
         final ImapArgumentFormatter argWriter = new ImapArgumentFormatter();
-        final String flagListString = argWriter.buildFlagListString(flags);
+        final String flagListString = argWriter.buildFlagString(flags);
         final String unchangedSinceStr = unchangedSince == null ? "" : unchangedSince.toString();
         final int len = ImapClientConstants.PAD_LEN  + msgNumbers.length() + unchangedSinceStr.length() + flagListString.length();
         final ByteBuf sb = Unpooled.buffer(len);
