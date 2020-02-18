@@ -148,12 +148,14 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void testGetCommandLineFromConstructorWithChangedSince() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void testGetCommandLineFromConstructorWithChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final long[] msgs = { 1L, 2L, 3L };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
         final ImapRequest cmd = new UidFetchCommand(msgsets, DATA_ITEMS, 1L);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -170,12 +172,14 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void GetCommandLineFromConstructorWithMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final long[] msgs = { 4294967293L, 4294967294L, 4294967295L };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
         final ImapRequest cmd = new UidFetchCommand(msgsets, FetchMacro.FAST, 1L);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 4294967293:4294967295 FAST (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 4294967293:4294967295 FAST (CHANGEDSINCE 1)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -192,10 +196,12 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void testGetCommandLineFromConstructorWithUidStringDataItemsChangedSince() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void testGetCommandLineFromConstructorWithUidStringDataItemsChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("*:4,5:7", DATA_ITEMS, 1L);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH *:4,5:7 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH *:4,5:7 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -212,10 +218,11 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("1:*", FetchMacro.FAST, 1L);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:* FAST (CHANGEDSINCE 1)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:* FAST (CHANGEDSINCE 1)\r\n", "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -232,12 +239,14 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void testGetCommandLineFromConstructorWithChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void testGetCommandLineFromConstructorWithChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final long[] msgs = { 1L, 2L, 3L };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
         final ImapRequest cmd = new UidFetchCommand(msgsets, DATA_ITEMS, 1L, true);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1 VANISHED)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:3 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1 VANISHED)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -254,12 +263,14 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void GetCommandLineFromConstructorWithMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final long[] msgs = { 4294967293L, 4294967294L, 4294967295L };
         final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgs);
         final ImapRequest cmd = new UidFetchCommand(msgsets, FetchMacro.FAST, 1L, true);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 4294967293:4294967295 FAST (CHANGEDSINCE 1 VANISHED)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 4294967293:4294967295 FAST (CHANGEDSINCE 1 VANISHED)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -276,10 +287,12 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void testGetCommandLineFromConstructorWithUidStringDataItemsChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void testGetCommandLineFromConstructorWithUidStringDataItemsChangedSinceVanished() throws ImapAsyncClientException,
+            IllegalArgumentException, IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("*:4,5:7", DATA_ITEMS, 1L, true);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH *:4,5:7 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1 VANISHED)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH *:4,5:7 (FLAGS BODY[HEADER.FIELDS (DATE FROM)]) (CHANGEDSINCE 1 VANISHED)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.
@@ -296,10 +309,11 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException, IllegalAccessException {
+    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
+            IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("1:*", FetchMacro.FAST, 1L, true);
-        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:* FAST (CHANGEDSINCE 1 VANISHED)\r\n", "Expected result mismatched.");
+        Assert.assertEquals(cmd.getCommandLine(), "UID FETCH 1:* FAST (CHANGEDSINCE 1 VANISHED)\r\n", "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.

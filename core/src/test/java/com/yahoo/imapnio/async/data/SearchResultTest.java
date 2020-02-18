@@ -19,32 +19,36 @@ public class SearchResultTest {
         final List<Long> ll = Collections.singletonList(Long.MAX_VALUE - 1);
         final SearchResult infos = new SearchResult(ll, 1L);
         final List<Long> result = infos.getMessageNumbers();
-        final long modSeq = infos.getHighestModSeq();
-        Assert.assertEquals(result.size(), 1, "Result mismatched.");
-        Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "Result mismatched.");
-        Assert.assertEquals(modSeq, 1L, "Result mismatched.");
+        final Long modSeq = infos.getHighestModSeq();
+
+        Assert.assertNotNull(result, "getMessageNumbers() should not return null.");
+        Assert.assertEquals(result.size(), 1, "getMessageNumbers() size mismatched.");
+        Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "getMessageNumbers() mismatched.");
+        Assert.assertNotNull(modSeq, "getHighestModSeq() should not return null");
+        Assert.assertEquals(modSeq, Long.valueOf(1), "getHighestModSeq() mismatched.");
     }
 
     /**
-     * Tests SearchResult constructor and getters when passing null list and not passing modification sequence.
+     * Tests SearchResult constructor and getters when no passing parameters.
      */
     @Test
-    public void testSearchResultNoFiled() {
+    public void testSearchResultNotPassingParameters() {
         final SearchResult infos = new SearchResult();
-        Assert.assertNull(infos.getMessageNumbers(), "Result mismatched.");
-        Assert.assertNull(infos.getHighestModSeq(), "Result mismatched.");
+        Assert.assertNull(infos.getMessageNumbers(), "getMessageNumbers() should return null.");
+        Assert.assertNull(infos.getHighestModSeq(), "getHighestModSeq() should return null.");
     }
 
     /**
-     * Tests SearchResult constructor and getters.
+     * Tests SearchResult constructor and getters when only passing msgNumbers.
      */
     @Test
     public void testSearchResultNullHighestModSeq() {
         final List<Long> ll = Collections.singletonList(Long.MAX_VALUE - 1);
         final SearchResult infos = new SearchResult(ll);
         final List<Long> result = infos.getMessageNumbers();
-        Assert.assertEquals(result.size(), 1, "Result mismatched.");
-        Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "Result mismatched.");
-        Assert.assertNull(infos.getHighestModSeq(), "Result mismatched.");
+        Assert.assertNotNull(result, "getMessageNumbers() should not return null.");
+        Assert.assertEquals(result.size(), 1, "getMessageNumbers() size mismatched.");
+        Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "getMessageNumbers() mismatched.");
+        Assert.assertNull(infos.getHighestModSeq(), "getHighestModSeq() should return null.");
     }
 }

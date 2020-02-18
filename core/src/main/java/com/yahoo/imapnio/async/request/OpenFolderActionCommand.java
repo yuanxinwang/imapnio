@@ -90,7 +90,6 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
     public ByteBuf getCommandLineBytes() throws ImapAsyncClientException {
         final String base64Folder = BASE64MailboxEncoder.encode(folderName);
         int qResyncParameterSize = 0;
-        int condStoreSize = 0;
         StringBuilder sb = null;
         if (qResyncParameter != null) {
             sb = new StringBuilder();
@@ -110,9 +109,8 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
             qResyncParameterSize = sb.length();
         }
 
-        if (condStore) {
-            condStoreSize = SP_CONDSTORE.length();
-        }
+        final int condStoreSize = condStore ? SP_CONDSTORE.length() : 0;
+
         // 2 * base64Folder.length(): assuming every char needs to be escaped, goal is eliminating resizing, and avoid complex length calculation
         final int len = 2 * base64Folder.length() + ImapClientConstants.PAD_LEN + qResyncParameterSize + condStoreSize;
         final ByteBuf byteBuf = Unpooled.buffer(len);

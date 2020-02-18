@@ -75,7 +75,6 @@ public class ExtensionMailboxInfo extends MailboxInfo {
     /**
      * @return isNoModSeq, true if the server return NOMODSEQ response.
      */
-    @Nonnull
     public boolean isNoModSeq() {
         return isNoModSeq;
     }

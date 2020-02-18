@@ -45,9 +45,7 @@ public class StoreResult {
      * @param modifiedMsgSets collection of modified message number from store command result
      */
     public StoreResult(@Nonnull final List<IMAPResponse> imapResponses, @Nonnull final MessageNumberSet[] modifiedMsgSets) {
-        this.highestModSeq = null;
-        this.imapResponses = imapResponses;
-        this.modifiedMsgSets = modifiedMsgSets;
+        this(null, imapResponses, modifiedMsgSets);
     }
 
     /**

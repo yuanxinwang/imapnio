@@ -87,10 +87,9 @@ public class ArgumentTest {
      *
      * @throws IOException will not throw
      * @throws SearchException will not throw
-     * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testConstructorModifiedSince() throws SearchException, IOException, ImapAsyncClientException {
+    public void testConstructorModifiedSince() throws SearchException, IOException {
 
         final ExtendedSearchSequence searchSeq = new ExtendedSearchSequence();
         final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
@@ -98,7 +97,7 @@ public class ArgumentTest {
         args.append(searchSeq.generateSequence(extendedModifiedSinceTerm));
 
         final String searchStr = args.toString();
-        Assert.assertEquals(searchStr, "MODSEQ 1", "result mismatched.");
+        Assert.assertEquals(searchStr, "MODSEQ 1", "generateSequence() mismatched.");
     }
 
     /**
@@ -118,7 +117,7 @@ public class ArgumentTest {
         args.append(searchSeq.generateSequence(orTerm, null));
 
         final String searchStr = args.toString();
-        Assert.assertEquals(searchStr, "OR (BODY test BODY test) (BODY test BODY test)", "result mismatched.");
+        Assert.assertEquals(searchStr, "OR (BODY test BODY test) (BODY test BODY test)", "generateSequence() mismatched.");
     }
 
     /**
@@ -129,7 +128,7 @@ public class ArgumentTest {
      * @throws ImapAsyncClientException will not throw
      */
     @Test
-    public void testConstructorNotAndModifiedSince() throws SearchException, IOException, ImapAsyncClientException {
+    public void testConstructorNotAndModifiedSince() throws SearchException, IOException {
 
         final ExtendedSearchSequence searchSeq = new ExtendedSearchSequence();
         final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
@@ -140,6 +139,6 @@ public class ArgumentTest {
         args.append(searchSeq.generateSequence(notTerm));
 
         final String searchStr = args.toString();
-        Assert.assertEquals(searchStr, "NOT (BODY test MODSEQ 1)", "result mismatched.");
+        Assert.assertEquals(searchStr, "NOT (BODY test MODSEQ 1)", "generateSequence() mismatched.");
     }
 }

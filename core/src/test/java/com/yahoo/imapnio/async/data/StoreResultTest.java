@@ -1,7 +1,7 @@
 package com.yahoo.imapnio.async.data;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,9 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.sun.mail.iap.ProtocolException;
-import com.sun.mail.imap.protocol.FetchResponse;
 import com.sun.mail.imap.protocol.IMAPResponse;
-import com.sun.mail.imap.protocol.MODSEQ;
 
 /**
  * Unit test for {@code StoreResult}.
@@ -22,24 +20,23 @@ public class StoreResultTest {
      */
     @Test
     public void testStoreResult() throws IOException, ProtocolException {
-        final IMAPResponse[] content = new IMAPResponse[2];
-        content[0] = new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))");
-        content[1] = new IMAPResponse("* VANISHED (EARLIER) 41,43:116,118,120:211,214:540");
-        final List<IMAPResponse> imapResponses = Arrays.asList(content);
+        final List<IMAPResponse> imapResponses = new ArrayList<>(2);
+        imapResponses.add(new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))"));
+        imapResponses.add(new IMAPResponse("* VANISHED (EARLIER) 41,43:116,118,120:211,214:540"));
         final MessageNumberSet[] modifiedMsgNums = { new MessageNumberSet(1L, 1L) };
         final StoreResult storeResult = new StoreResult(1L, imapResponses, modifiedMsgNums);
-        final long highestModSeq = storeResult.getHighestModSeq();
+        final Long highestModSeq = storeResult.getHighestModSeq();
         final List<IMAPResponse> responses = storeResult.getIMAPResponses();
 
-        Assert.assertEquals(responses.size(), 2, "Result mismatched.");
-        Assert.assertEquals(highestModSeq, 1L, "Result mismatched.");
-        Assert.assertTrue(responses.get(0).keyEquals("FETCH"), "Result mismatched.");
-        final long fetchedModSeq = new FetchResponse(responses.get(0)).getItem(MODSEQ.class).modseq;
-        Assert.assertEquals(fetchedModSeq, 12121231000L, "Result mismatched.");
-        Assert.assertTrue(responses.get(1).keyEquals("VANISHED"), "Result mismatched.");
-        final String modifiedMsgsets = MessageNumberSet.buildString(storeResult.getModifiedMsgSets());
-        Assert.assertEquals(storeResult.getModifiedMsgSets().length, 1, "Result mismatched.");
-        Assert.assertEquals(modifiedMsgsets, "1", "Result mismatched.");
+        Assert.assertEquals(responses.size(), 2, "getIMAPResponses() mismatched.");
+        Assert.assertNotNull(highestModSeq, "getHighestModSeq() should not return null");
+        Assert.assertEquals(highestModSeq, Long.valueOf(1L), "getHighestModSeq() mismatched.");
+        Assert.assertTrue(responses.get(0).keyEquals("FETCH"), "getIMAPResponses() mismatched.");
+        Assert.assertTrue(responses.get(1).keyEquals("VANISHED"), "getIMAPResponses() mismatched.");
+        final MessageNumberSet[] modifiedMsgsets = storeResult.getModifiedMsgSets();
+        Assert.assertNotNull(modifiedMsgsets, "getModifiedMsgSets() should not return null.");
+        Assert.assertEquals(modifiedMsgsets.length, 1, "getModifiedMsgSets() size mismatched.");
+        Assert.assertEquals(modifiedMsgsets[0], modifiedMsgNums[0], "getModifiedMsgSets() mismatched.");
     }
 
     /**
@@ -54,9 +51,10 @@ public class StoreResultTest {
         final List<IMAPResponse>responses = infos.getIMAPResponses();
         final Long highestModSeq = infos.getHighestModSeq();
 
-        Assert.assertNull(highestModSeq, "Result mismatched.");
-        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
-        Assert.assertEquals(modifiedMsgsets.length, 0, "Result mismatched.");
+        Assert.assertNull(highestModSeq, "getHighestModSeq() should return null.");
+        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() size mismatched.");
+        Assert.assertNotNull(modifiedMsgsets, "getModifiedMsgSets() should not return null.");
+        Assert.assertEquals(modifiedMsgsets.length, 0, "getModifiedMsgSets() mismatched.");
     }
 
     /**
@@ -68,11 +66,12 @@ public class StoreResultTest {
         final StoreResult infos = new StoreResult(1L, Collections.emptyList());
         final MessageNumberSet[] modifiedMsgsets = infos.getModifiedMsgSets();
         final List<IMAPResponse>responses = infos.getIMAPResponses();
-        final long highestModSeq = infos.getHighestModSeq();
+        final Long highestModSeq = infos.getHighestModSeq();
 
-        Assert.assertEquals(highestModSeq, 1L, "Result mismatched.");
-        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
-        Assert.assertNull(modifiedMsgsets, "Result mismatched.");
+        Assert.assertNotNull(highestModSeq, "getHighestModSeq() should not return null.");
+        Assert.assertEquals(highestModSeq, Long.valueOf(1), "getHighestModSeq() mismatched.");
+        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() size mismatched.");
+        Assert.assertNull(modifiedMsgsets, "getModifiedMsgSets() should return null.");
     }
 
     /**
@@ -80,14 +79,14 @@ public class StoreResultTest {
      * and null modified message number collection.
      */
     @Test
-    public void testStoreResultNullModifiedMessage() {
+    public void testStoreResultOnlyImapResponses() {
         final StoreResult infos = new StoreResult(Collections.emptyList());
         final MessageNumberSet[] modifiedMsgsets = infos.getModifiedMsgSets();
         final List<IMAPResponse>responses = infos.getIMAPResponses();
         final Long highestModSeq = infos.getHighestModSeq();
 
-        Assert.assertNull(highestModSeq, "Result mismatched.");
-        Assert.assertEquals(responses.size(), 0, "Result mismatched.");
-        Assert.assertNull(modifiedMsgsets, "Result mismatched.");
+        Assert.assertNull(highestModSeq, "getHighestModSeq() should return null.");
+        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() should have no response.");
+        Assert.assertNull(modifiedMsgsets, "getModifiedMsgSets() should return null.");
     }
 }

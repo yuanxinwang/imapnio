@@ -47,7 +47,7 @@ import io.netty.buffer.Unpooled;
  *                       ;; (mod-sequence)
  *                       ;; (1 <= n <= 9,223,372,036,854,775,807).
  *
- * rexpunges-fetch-mod  =  "VANISHED"
+ * rexpunges-fetch-mod =  "VANISHED"
  *                       ;; VANISHED UID FETCH modifier conforms
  *                       ;; to the fetch-modifier syntax
  *                       ;; defined in [RFC4466].  It is only
@@ -286,7 +286,8 @@ public abstract class AbstractFetchCommand extends ImapRequestAdapter {
         // Ex:UID FETCH 300:500 (FLAGS) (CHANGEDSINCE 1234 VANISHED)
         final int dataItemsSize = dataItems == null ? macro.name().length() : dataItems.length();
         final String changedSinceStr = changedSince == null ? "" : changedSince.toString();
-        final int len = ImapClientConstants.PAD_LEN  + changedSinceStr.length() + dataItemsSize + msgNumbers.length();
+        final int vanishedSize = vanished ? SP_VANISHED.length() : 0;
+        final int len = ImapClientConstants.PAD_LEN  + changedSinceStr.length() + dataItemsSize + msgNumbers.length() + vanishedSize;
         final ByteBuf sb = Unpooled.buffer(len);
 
         sb.writeBytes(isUid ? UID_FETCH_SP_B : FETCH_SP_B);

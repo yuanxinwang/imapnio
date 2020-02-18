@@ -77,8 +77,8 @@ public class ImapResponseMapper {
      */
     @SuppressWarnings("unchecked")
     @Nonnull
-    public <T> T readValue(@Nonnull final IMAPResponse[] content, @Nonnull final Class<T> valueType)
-            throws ImapAsyncClientException, ProtocolException {
+    public <T> T readValue(@Nonnull final IMAPResponse[] content, @Nonnull final Class<T> valueType) throws ImapAsyncClientException,
+            ProtocolException {
         if (valueType == Capability.class) {
             return (T) parser.parseToCapabilities(content);
         }
