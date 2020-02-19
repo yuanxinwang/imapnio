@@ -172,7 +172,7 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+    public void testGetCommandLineFromConstructorWithMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
             IllegalAccessException {
 
         final long[] msgs = { 4294967293L, 4294967294L, 4294967295L };
@@ -218,7 +218,7 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
+    public void testGetCommandLineFromConstructorWithUidStringAndMacroChangedSince() throws ImapAsyncClientException, IllegalArgumentException,
             IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("1:*", FetchMacro.FAST, 1L);
@@ -263,7 +263,7 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
+    public void testGetCommandLineFromConstructorWithMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
             IllegalAccessException {
 
         final long[] msgs = { 4294967293L, 4294967294L, 4294967295L };
@@ -309,7 +309,7 @@ public class UidFetchCommandTest {
      * @throws IllegalArgumentException will not throw
      */
     @Test
-    public void GetCommandLineFromConstructorWithUidStringAndMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
+    public void testGetCommandLineFromConstructorWithUidStringAndMacroChangedSinceVanished() throws ImapAsyncClientException, IllegalArgumentException,
             IllegalAccessException {
 
         final ImapRequest cmd = new UidFetchCommand("1:*", FetchMacro.FAST, 1L, true);

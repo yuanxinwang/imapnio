@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.request.EntryTypeReq;
-import com.yahoo.imapnio.async.request.ImapArgumentFormatter;
 
 /**
  * Unit test for {@code ExtendedModifiedSinceTerm}.
@@ -63,7 +62,7 @@ public class ExtendedModifiedSinceTermTest {
         ImapAsyncClientException actual = null;
 
         try {
-            final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(flags, EntryTypeReq.ALL, 1L);
+            new ExtendedModifiedSinceTerm(flags, EntryTypeReq.ALL, 1L);
         } catch (final ImapAsyncClientException e) {
             actual = e;
         }

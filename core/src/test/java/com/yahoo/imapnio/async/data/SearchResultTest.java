@@ -17,9 +17,9 @@ public class SearchResultTest {
     @Test
     public void testSearchResult() {
         final List<Long> ll = Collections.singletonList(Long.MAX_VALUE - 1);
-        final SearchResult infos = new SearchResult(ll, 1L);
-        final List<Long> result = infos.getMessageNumbers();
-        final Long modSeq = infos.getHighestModSeq();
+        final SearchResult sr = new SearchResult(ll, 1L);
+        final List<Long> result = sr.getMessageNumbers();
+        final Long modSeq = sr.getHighestModSeq();
 
         Assert.assertNotNull(result, "getMessageNumbers() should not return null.");
         Assert.assertEquals(result.size(), 1, "getMessageNumbers() size mismatched.");
@@ -33,9 +33,9 @@ public class SearchResultTest {
      */
     @Test
     public void testSearchResultNotPassingParameters() {
-        final SearchResult infos = new SearchResult();
-        Assert.assertNull(infos.getMessageNumbers(), "getMessageNumbers() should return null.");
-        Assert.assertNull(infos.getHighestModSeq(), "getHighestModSeq() should return null.");
+        final SearchResult sr = new SearchResult();
+        Assert.assertNull(sr.getMessageNumbers(), "getMessageNumbers() should return null.");
+        Assert.assertNull(sr.getHighestModSeq(), "getHighestModSeq() should return null.");
     }
 
     /**
@@ -44,11 +44,11 @@ public class SearchResultTest {
     @Test
     public void testSearchResultNullHighestModSeq() {
         final List<Long> ll = Collections.singletonList(Long.MAX_VALUE - 1);
-        final SearchResult infos = new SearchResult(ll);
-        final List<Long> result = infos.getMessageNumbers();
+        final SearchResult sr = new SearchResult(ll);
+        final List<Long> result = sr.getMessageNumbers();
         Assert.assertNotNull(result, "getMessageNumbers() should not return null.");
         Assert.assertEquals(result.size(), 1, "getMessageNumbers() size mismatched.");
         Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "getMessageNumbers() mismatched.");
-        Assert.assertNull(infos.getHighestModSeq(), "getHighestModSeq() should return null.");
+        Assert.assertNull(sr.getHighestModSeq(), "getHighestModSeq() should return null.");
     }
 }
