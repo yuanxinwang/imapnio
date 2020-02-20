@@ -149,12 +149,12 @@ public class MessageNumberSetTest {
      */
     @Test
     public void testBuildMessageNumberSetsWithOneString() throws ImapAsyncClientException {
-        final String msgSetStr = "1";
-        final MessageNumberSet messageNumberSet = new MessageNumberSet(1, 1);
-        final MessageNumberSet[] messageNumberSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
-        Assert.assertNotNull(messageNumberSets, "buildMessageNumberSets() should not return null.");
-        Assert.assertEquals(messageNumberSets.length, 1, "buildMessageNumberSets() size mismatched.");
-        Assert.assertEquals(messageNumberSets[0], messageNumberSet, "buildMessageNumberSets() mismatched.");
+        final MessageNumberSet[] expectedMsgSets = { new MessageNumberSet(1, 1) };
+        final String msgSetStr = MessageNumberSet.buildString(expectedMsgSets);
+        final MessageNumberSet[] actualMsgSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
+        Assert.assertNotNull(actualMsgSets, "buildMessageNumberSets() should not return null.");
+        Assert.assertEquals(actualMsgSets.length, 1, "buildMessageNumberSets() size mismatched.");
+        Assert.assertEquals(actualMsgSets[0], expectedMsgSets[0], "buildMessageNumberSets() mismatched.");
     }
 
     /**
@@ -162,12 +162,12 @@ public class MessageNumberSetTest {
      */
     @Test
     public void testBuildMessageNumberSetsWithStartEnd() throws ImapAsyncClientException {
-        final String msgSetStr = "1:100";
-        final MessageNumberSet[] messageNumberSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
-        final MessageNumberSet messageNumberSet = new MessageNumberSet(1, 100);
-        Assert.assertNotNull(messageNumberSets, "buildMessageNumberSets() should not return null.");
-        Assert.assertEquals(messageNumberSets.length, 1, "buildMessageNumberSets() size mismatched.");
-        Assert.assertEquals(messageNumberSets[0], messageNumberSet, "buildMessageNumberSets() mismatched.");
+        final MessageNumberSet[] expectedMsgSets = { new MessageNumberSet(1, 100) };
+        final String msgSetStr = MessageNumberSet.buildString(expectedMsgSets);
+        final MessageNumberSet[] actualMsgSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
+        Assert.assertNotNull(actualMsgSets, "buildMessageNumberSets() should not return null.");
+        Assert.assertEquals(actualMsgSets.length, 1, "buildMessageNumberSets() size mismatched.");
+        Assert.assertEquals(actualMsgSets[0], expectedMsgSets[0], "buildMessageNumberSets() mismatched.");
     }
 
     /**
@@ -175,12 +175,12 @@ public class MessageNumberSetTest {
      */
     @Test
     public void testBuildMessageNumberSetsWithStartEndWithLast() throws ImapAsyncClientException {
-        final String msgSetStr = "1:*";
-        final MessageNumberSet messageNumberSet = new MessageNumberSet(1, LastMessage.LAST_MESSAGE);
-        final MessageNumberSet[] messageNumberSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
-        Assert.assertNotNull(messageNumberSets, "buildMessageNumberSets() should not return null.");
-        Assert.assertEquals(messageNumberSets.length, 1, "buildMessageNumberSets() size mismatched.");
-        Assert.assertEquals(messageNumberSets[0], messageNumberSet, "buildMessageNumberSets() mismatched.");
+        final MessageNumberSet[] expectedMsgSets = { new MessageNumberSet(1, LastMessage.LAST_MESSAGE) };
+        final String msgSetStr = MessageNumberSet.buildString(expectedMsgSets);
+        final MessageNumberSet[] actualMsgSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
+        Assert.assertNotNull(actualMsgSets, "buildMessageNumberSets() should not return null.");
+        Assert.assertEquals(actualMsgSets.length, 1, "buildMessageNumberSets() size mismatched.");
+        Assert.assertEquals(actualMsgSets[0], expectedMsgSets[0], "buildMessageNumberSets() mismatched.");
     }
 
     /**
@@ -188,12 +188,25 @@ public class MessageNumberSetTest {
      */
     @Test
     public void testBuildMessageNumberSetsWithLastMessageOnly() throws ImapAsyncClientException {
-        final String msgSetStr = "*";
-        final MessageNumberSet[] messageNumberSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
-        final MessageNumberSet messageNumberSet = new MessageNumberSet(LastMessage.LAST_MESSAGE);
-        Assert.assertNotNull(messageNumberSets, "buildMessageNumberSets() should not return null.");
-        Assert.assertEquals(messageNumberSets.length, 1, "buildMessageNumberSets() size mismatched.");
-        Assert.assertEquals(messageNumberSets[0], messageNumberSet, "buildMessageNumberSets() mismatched.");
+        final MessageNumberSet[] expectedMsgSets = { new MessageNumberSet(LastMessage.LAST_MESSAGE) };
+        final String msgSetStr = MessageNumberSet.buildString(expectedMsgSets);
+        final MessageNumberSet[] actualMsgSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
+        Assert.assertNotNull(actualMsgSets, "buildMessageNumberSets() should not return null.");
+        Assert.assertEquals(actualMsgSets.length, 1, "buildMessageNumberSets() size mismatched.");
+        Assert.assertEquals(actualMsgSets[0], expectedMsgSets[0], "buildMessageNumberSets() mismatched.");
+    }
+
+    /**
+     * Tests buildMessageNumberSets(String) method with last message only.
+     */
+    @Test
+    public void testBuildMessageNumberSetsWithEndStartWithLast() throws ImapAsyncClientException {
+        final MessageNumberSet[] expectedMsgSets = { new MessageNumberSet(1, LastMessage.LAST_MESSAGE) };
+        final String msgSetStr = "*:1";
+        final MessageNumberSet[] actualMsgSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
+        Assert.assertNotNull(actualMsgSets, "buildMessageNumberSets() should not return null.");
+        Assert.assertEquals(actualMsgSets.length, 1, "buildMessageNumberSets() size mismatched.");
+        Assert.assertEquals(actualMsgSets[0], expectedMsgSets[0], "buildMessageNumberSets() mismatched.");
     }
 
     /**
@@ -201,13 +214,13 @@ public class MessageNumberSetTest {
      */
     @Test
     public void testBuildMessageNumberSetsWithMultipleMsgNumSets() throws ImapAsyncClientException {
-        final String msgSetStr = "1:5,1:*,2,*";
         final int numMsgs = 4;
         final MessageNumberSet[] expectedMsgs = new MessageNumberSet[numMsgs];
         expectedMsgs[0] = new MessageNumberSet(1, 5);
         expectedMsgs[1] = new MessageNumberSet(1, LastMessage.LAST_MESSAGE);
         expectedMsgs[2] = new MessageNumberSet(2, 2);
         expectedMsgs[3] = new MessageNumberSet(LastMessage.LAST_MESSAGE);
+        final String msgSetStr = MessageNumberSet.buildString(expectedMsgs);
         final MessageNumberSet[] messageNumberSets = MessageNumberSet.buildMessageNumberSets(msgSetStr);
         Assert.assertNotNull(messageNumberSets, "buildMessageNumberSets() should not return null.");
         Assert.assertEquals(messageNumberSets.length, numMsgs, "buildMessageNumberSets() size mismatched.");

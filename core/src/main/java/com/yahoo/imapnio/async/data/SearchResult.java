@@ -9,19 +9,12 @@ import javax.annotation.Nullable;
  * This class provides the modification sequence and the list of message sequence numbers from search command response.
  */
 public class SearchResult {
+    @Nonnull
     /** Search command response sequence number, could be message sequence or UID. */
     private final List<Long> msgNumbers;
 
     /** Modification sequence, is only shown when CondStore is enabled. */
     private final Long highestModSeq;
-
-    /**
-     * Initializes a {@code SearchResult} object.
-     */
-    public SearchResult() {
-        this.msgNumbers = null;
-        this.highestModSeq = null;
-    }
 
     /**
      * Initializes a {@code SearchResult} object with message number collection.
@@ -47,7 +40,7 @@ public class SearchResult {
     /**
      * @return message number collection from search command or UID search command result
      */
-    @Nullable
+    @Nonnull
     public List<Long> getMessageNumbers() {
         return this.msgNumbers;
     }

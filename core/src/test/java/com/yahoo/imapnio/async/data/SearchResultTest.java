@@ -29,16 +29,6 @@ public class SearchResultTest {
     }
 
     /**
-     * Tests SearchResult constructor and getters when no passing parameters.
-     */
-    @Test
-    public void testSearchResultNotPassingParameters() {
-        final SearchResult sr = new SearchResult();
-        Assert.assertNull(sr.getMessageNumbers(), "getMessageNumbers() should return null.");
-        Assert.assertNull(sr.getHighestModSeq(), "getHighestModSeq() should return null.");
-    }
-
-    /**
      * Tests SearchResult constructor and getters when only passing msgNumbers.
      */
     @Test

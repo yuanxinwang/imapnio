@@ -279,6 +279,8 @@ public final class MessageNumberSet {
                 final String[] elements = element.split(":");
                 if (elements[1].equals("*")) { // Ex: 1:*
                     msgSets[i] = new MessageNumberSet(Long.parseLong(elements[0]), LastMessage.LAST_MESSAGE);
+                } else if (elements[0].equals("*")) {
+                    msgSets[i] = new MessageNumberSet(Long.parseLong(elements[1]), LastMessage.LAST_MESSAGE);
                 } else { // Ex: 1:2
                     msgSets[i] = new MessageNumberSet(Long.parseLong(elements[0]), Long.parseLong(elements[1]));
                 }
