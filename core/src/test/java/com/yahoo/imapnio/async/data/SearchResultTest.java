@@ -27,18 +27,4 @@ public class SearchResultTest {
         Assert.assertNotNull(modSeq, "getHighestModSeq() should not return null");
         Assert.assertEquals(modSeq, Long.valueOf(1), "getHighestModSeq() mismatched.");
     }
-
-    /**
-     * Tests SearchResult constructor and getters when only passing msgNumbers.
-     */
-    @Test
-    public void testSearchResultNullHighestModSeq() {
-        final List<Long> ll = Collections.singletonList(Long.MAX_VALUE - 1);
-        final SearchResult sr = new SearchResult(ll);
-        final List<Long> result = sr.getMessageNumbers();
-        Assert.assertNotNull(result, "getMessageNumbers() should not return null.");
-        Assert.assertEquals(result.size(), 1, "getMessageNumbers() size mismatched.");
-        Assert.assertEquals(result.get(0), Long.valueOf(Long.MAX_VALUE - 1), "getMessageNumbers() mismatched.");
-        Assert.assertNull(sr.getHighestModSeq(), "getHighestModSeq() should return null.");
-    }
 }

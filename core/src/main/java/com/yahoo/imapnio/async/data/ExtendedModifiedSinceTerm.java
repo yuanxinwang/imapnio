@@ -122,6 +122,6 @@ public final class ExtendedModifiedSinceTerm extends SearchTerm {
      */
     @Override
     public boolean match(final Message msg) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("This method should not be used. Only for override purpose.");
     }
 }

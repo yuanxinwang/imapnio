@@ -2,7 +2,6 @@ package com.yahoo.imapnio.async.data;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -37,56 +36,5 @@ public class StoreResultTest {
         Assert.assertNotNull(modifiedMsgsets, "getModifiedMsgSets() should not return null.");
         Assert.assertEquals(modifiedMsgsets.length, 1, "getModifiedMsgSets() size mismatched.");
         Assert.assertEquals(modifiedMsgsets[0], modifiedMsgSet[0], "getModifiedMsgSets() mismatched.");
-    }
-
-    /**
-     * Tests StoreResult constructor and getters when not passing highest mod sequence, empty fetch responses collection,
-     * and empty modified message number collection.
-     */
-    @Test
-    public void testStoreResultIgnoreHighestModSeq() {
-        final MessageNumberSet[] msgSets = new MessageNumberSet[0];
-        final StoreResult sr = new StoreResult(Collections.emptyList(), msgSets);
-        final MessageNumberSet[] modifiedMsgsets = sr.getModifiedMsgSets();
-        final List<IMAPResponse>responses = sr.getIMAPResponses();
-        final Long highestModSeq = sr.getHighestModSeq();
-
-        Assert.assertNull(highestModSeq, "getHighestModSeq() should return null.");
-        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() size mismatched.");
-        Assert.assertNotNull(modifiedMsgsets, "getModifiedMsgSets() should not return null.");
-        Assert.assertEquals(modifiedMsgsets.length, 0, "getModifiedMsgSets() mismatched.");
-    }
-
-    /**
-     * Tests StoreResult constructor and getters when passing highest mod sequence, empty fetch responses collection,
-     * and not passing modified message number collection.
-     */
-    @Test
-    public void testStoreResultIgnoreModifiedMessage() {
-        final StoreResult sr = new StoreResult(1L, Collections.emptyList());
-        final MessageNumberSet[] modifiedMsgsets = sr.getModifiedMsgSets();
-        final List<IMAPResponse>responses = sr.getIMAPResponses();
-        final Long highestModSeq = sr.getHighestModSeq();
-
-        Assert.assertNotNull(highestModSeq, "getHighestModSeq() should not return null.");
-        Assert.assertEquals(highestModSeq, Long.valueOf(1), "getHighestModSeq() mismatched.");
-        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() size mismatched.");
-        Assert.assertNull(modifiedMsgsets, "getModifiedMsgSets() should return null.");
-    }
-
-    /**
-     * Tests StoreResult constructor and getters when passing null highest mod sequence, empty fetch responses collection,
-     * and null modified message number collection.
-     */
-    @Test
-    public void testStoreResultOnlyImapResponses() {
-        final StoreResult sr = new StoreResult(Collections.emptyList());
-        final MessageNumberSet[] modifiedMsgsets = sr.getModifiedMsgSets();
-        final List<IMAPResponse>responses = sr.getIMAPResponses();
-        final Long highestModSeq = sr.getHighestModSeq();
-
-        Assert.assertNull(highestModSeq, "getHighestModSeq() should return null.");
-        Assert.assertEquals(responses.size(), 0, "getIMAPResponses() should have no response.");
-        Assert.assertNull(modifiedMsgsets, "getModifiedMsgSets() should return null.");
     }
 }

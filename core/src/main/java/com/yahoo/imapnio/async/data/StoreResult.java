@@ -28,38 +28,7 @@ public class StoreResult {
     private final MessageNumberSet[] modifiedMsgSets;
 
     /**
-     * Initializes a {@code StoreResult} object with IMAP responses collection.
-     *
-     * @param imapResponses collection of IMAP responses from store command result
-     */
-    public StoreResult(@Nonnull final List<IMAPResponse> imapResponses) {
-        this.highestModSeq = null;
-        this.imapResponses = imapResponses;
-        this.modifiedMsgSets = null;
-    }
-
-    /**
-     * Initializes a {@code StoreResult} object with IMAP responses collection and modified message number collection.
-     *
-     * @param imapResponses collection of IMAP responses from store command result
-     * @param modifiedMsgSets collection of modified message number from store command result
-     */
-    public StoreResult(@Nonnull final List<IMAPResponse> imapResponses, @Nonnull final MessageNumberSet[] modifiedMsgSets) {
-        this(null, imapResponses, modifiedMsgSets);
-    }
-
-    /**
-     * Initializes a {@code StoreResult} object with the highest modification sequence and IMAP responses collection.
-     *
-     * @param highestModSeq the highest modification from store command result
-     * @param imapResponses collection of IMAP responses from store command result
-     */
-    public StoreResult(@Nonnull final Long highestModSeq, @Nonnull final List<IMAPResponse> imapResponses) {
-        this(highestModSeq, imapResponses, null);
-    }
-
-    /**
-     * Initializes a {@code StoreResult} object with the highest modification sequence, IMAP responses collection,
+     * Initializes a {@link StoreResult} object with the highest modification sequence, IMAP responses collection,
      * and modified message number collection.
      *
      * @param highestModSeq the highest modification from store command result
