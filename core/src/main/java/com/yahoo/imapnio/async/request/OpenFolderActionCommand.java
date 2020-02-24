@@ -36,7 +36,7 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
     private QResyncParameter qResyncParameter;
 
     /** Optional CondStore parameter. */
-    private boolean condStore;
+    private boolean isCondStoreEnabled;
 
     /**
      * Initializes a @{code OpenFolderActionCommand}.
@@ -48,7 +48,7 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
         this.op = op;
         this.folderName = folderName;
         this.qResyncParameter = null;
-        this.condStore = false;
+        this.isCondStoreEnabled = false;
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
         this.op = op;
         this.folderName = folderName;
         this.qResyncParameter = qResyncParameter;
-        this.condStore = false;
+        this.isCondStoreEnabled = false;
     }
 
     /**
@@ -70,13 +70,13 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
      *
      * @param op command operator
      * @param folderName folder name
-     * @param condStore whether to enable CondStore
+     * @param isCondStoreEnabled whether to enable CondStore
      */
-    protected OpenFolderActionCommand(@Nonnull final String op, @Nonnull final String folderName, final boolean condStore) {
+    protected OpenFolderActionCommand(@Nonnull final String op, @Nonnull final String folderName, final boolean isCondStoreEnabled) {
         this.op = op;
         this.folderName = folderName;
         this.qResyncParameter = null;
-        this.condStore = condStore;
+        this.isCondStoreEnabled = isCondStoreEnabled;
     }
 
     @Override
@@ -109,7 +109,7 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
             qResyncParameterSize = sb.length();
         }
 
-        final int condStoreSize = condStore ? SP_CONDSTORE.length() : 0;
+        final int condStoreSize = isCondStoreEnabled ? SP_CONDSTORE.length() : 0;
 
         // 2 * base64Folder.length(): assuming every char needs to be escaped, goal is eliminating resizing, and avoid complex length calculation
         final int len = 2 * base64Folder.length() + ImapClientConstants.PAD_LEN + qResyncParameterSize + condStoreSize;
@@ -125,7 +125,7 @@ abstract class OpenFolderActionCommand extends ImapRequestAdapter {
             byteBuf.writeBytes(sb.toString().getBytes(StandardCharsets.US_ASCII));
         }
 
-        if (condStore) {
+        if (isCondStoreEnabled) {
             byteBuf.writeBytes(SP_CONDSTORE_B);
         }
 

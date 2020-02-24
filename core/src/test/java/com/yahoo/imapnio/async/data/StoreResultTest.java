@@ -1,9 +1,10 @@
 package com.yahoo.imapnio.async.data;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.sun.mail.imap.protocol.FetchResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -19,19 +20,16 @@ public class StoreResultTest {
      */
     @Test
     public void testStoreResult() throws IOException, ProtocolException {
-        final List<IMAPResponse> imapResponses = new ArrayList<>(2);
-        imapResponses.add(new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))"));
-        imapResponses.add(new IMAPResponse("* VANISHED (EARLIER) 41,43:116,118,120:211,214:540"));
+        final FetchResponse fr = new FetchResponse(new IMAPResponse("* 1 FETCH (UID 4 MODSEQ (12121231000))"));
+        final List<FetchResponse> fetchResponses = Collections.singletonList(fr);
         final MessageNumberSet[] modifiedMsgSet = { new MessageNumberSet(1L, 1L) };
-        final StoreResult storeResult = new StoreResult(1L, imapResponses, modifiedMsgSet);
+        final StoreResult storeResult = new StoreResult(1L, fetchResponses, modifiedMsgSet);
         final Long highestModSeq = storeResult.getHighestModSeq();
-        final List<IMAPResponse> responses = storeResult.getIMAPResponses();
+        final List<FetchResponse> responses = storeResult.getFetchResponses();
 
-        Assert.assertEquals(responses.size(), 2, "getIMAPResponses() mismatched.");
+        Assert.assertEquals(responses.size(), 1, "getFetchResponses() mismatched.");
         Assert.assertNotNull(highestModSeq, "getHighestModSeq() should not return null");
         Assert.assertEquals(highestModSeq, Long.valueOf(1L), "getHighestModSeq() mismatched.");
-        Assert.assertTrue(responses.get(0).keyEquals("FETCH"), "getIMAPResponses() mismatched.");
-        Assert.assertTrue(responses.get(1).keyEquals("VANISHED"), "getIMAPResponses() mismatched.");
         final MessageNumberSet[] modifiedMsgsets = storeResult.getModifiedMsgSets();
         Assert.assertNotNull(modifiedMsgsets, "getModifiedMsgSets() should not return null.");
         Assert.assertEquals(modifiedMsgsets.length, 1, "getModifiedMsgSets() size mismatched.");
