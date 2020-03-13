@@ -25,6 +25,7 @@ import com.sun.mail.imap.protocol.MailboxInfo;
 import com.sun.mail.imap.protocol.Status;
 import com.sun.mail.imap.protocol.UIDSet;
 import com.yahoo.imapnio.async.data.Capability;
+import com.yahoo.imapnio.async.data.ExpungeResult;
 import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
 import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
@@ -32,6 +33,7 @@ import com.yahoo.imapnio.async.data.ListInfoList;
 import com.yahoo.imapnio.async.data.MessageNumberSet;
 import com.yahoo.imapnio.async.data.SearchResult;
 import com.yahoo.imapnio.async.data.StoreResult;
+import com.yahoo.imapnio.async.data.VanishedResponse;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException.FailureType;
 
@@ -54,6 +56,12 @@ public class ImapResponseMapper {
 
     /** FETCH keyword. */
     private static final String FETCH = "FETCH";
+
+    /** VANISHED keyword. */
+    private static final String VANISHED = "VANISHED";
+
+    /** EXPUNGE keyword. */
+    private static final String EXPUNGE = "EXPUNGE";
 
     /** EQUAL sign. */
     private static final String EQUAL = "=";
@@ -123,6 +131,9 @@ public class ImapResponseMapper {
         }
         if (valueType == StoreResult.class) {
             return (T) parser.parseToStoreResult(content);
+        }
+        if (valueType == ExpungeResult.class) {
+            return (T) parser.parseToExpungeResult(content);
         }
 
         throw new ImapAsyncClientException(FailureType.UNKNOWN_PARSE_RESULT_TYPE);
@@ -578,6 +589,7 @@ public class ImapResponseMapper {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
             }
             final List<FetchResponse> fetchResponses = new ArrayList<>(); // will always return a non-null array
+            VanishedResponse vanishedResponse = null;
 
             for (final IMAPResponse sr: ir) {
                 if (sr.keyEquals(FETCH)) {
@@ -586,10 +598,49 @@ public class ImapResponseMapper {
                     } catch (final IOException | ProtocolException e) {
                         throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
                     }
+                } else if (sr.keyEquals(VANISHED)) {
+                    vanishedResponse = new VanishedResponse(sr);
                 }
             }
 
-            return new FetchResult(fetchResponses);
+            return new FetchResult(fetchResponses, vanishedResponse);
+        }
+
+        /**
+         * Parses the responses from Expunge command and UID Expunge command to a {@link ExpungeResult} object.
+         *
+         * @param ir the list of responses from Store or UID Store command, the input responses array should contain the tagged/final one
+         * @return ExpungeResult object constructed based on the given IMAPResponse array,
+         * @throws ImapAsyncClientException when tagged response is bad or given response length is 0 or fail to parse Fetch Response
+         */
+        @Nonnull
+        private ExpungeResult parseToExpungeResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
+            if (ir.length < 1) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final Response taggedResponse = ir[ir.length - 1];
+
+            if (!taggedResponse.isOK()) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+
+            VanishedResponse vanishedResponse = null;
+            Long highestModSeq = null;
+            final List<Integer> expungeMessageNumberList = new ArrayList<>(); // will always return a non-null array
+            for (final IMAPResponse sr: ir) {
+                sr.skipSpaces();
+                if (sr.keyEquals(VANISHED)) {
+                    vanishedResponse = new VanishedResponse(sr);
+                } else if (sr.keyEquals(EXPUNGE)) {
+                    expungeMessageNumberList.add(sr.getNumber());
+                }
+            }
+
+            if (vanishedResponse != null) {
+                return new ExpungeResult(vanishedResponse, highestModSeq);
+            } else {
+                return new ExpungeResult(expungeMessageNumberList, highestModSeq);
+            }
         }
     }
 }

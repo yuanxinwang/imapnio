@@ -21,6 +21,7 @@ import com.sun.mail.imap.protocol.ListInfo;
 import com.sun.mail.imap.protocol.MailboxInfo;
 import com.sun.mail.imap.protocol.Status;
 import com.yahoo.imapnio.async.data.Capability;
+import com.yahoo.imapnio.async.data.ExpungeResult;
 import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
 import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
@@ -28,6 +29,7 @@ import com.yahoo.imapnio.async.data.ListInfoList;
 import com.yahoo.imapnio.async.data.MessageNumberSet;
 import com.yahoo.imapnio.async.data.SearchResult;
 import com.yahoo.imapnio.async.data.StoreResult;
+import com.yahoo.imapnio.async.data.VanishedResponse;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException;
 import com.yahoo.imapnio.async.exception.ImapAsyncClientException.FailureType;
 
@@ -360,7 +362,7 @@ public class ImapResponseMapperTest {
     @Test
     public void testParseExtensionMailboxInfoReadOnlySuccess() throws IOException, ProtocolException, ImapAsyncClientException {
         final ImapResponseMapper mapper = new ImapResponseMapper();
-        final IMAPResponse[] content = new IMAPResponse[9];
+        final IMAPResponse[] content = new IMAPResponse[10];
         content[0] = new IMAPResponse("* 3 EXISTS");
         content[1] = new IMAPResponse("* 0 RECENT");
         content[2] = new IMAPResponse("* OK [UIDVALIDITY 1459808247] UIDs valid");
@@ -369,7 +371,8 @@ public class ImapResponseMapperTest {
         content[5] = new IMAPResponse("* OK [PERMANENTFLAGS ()] No permanent flags permitted");
         content[6] = new IMAPResponse("* OK [HIGHESTMODSEQ 614]");
         content[7] = new IMAPResponse("* OK [MAILBOXID (A26)] Ok");
-        content[8] = new IMAPResponse("002 OK [READ-ONLY] EXAMINE completed; now in selected state");
+        content[8] = new IMAPResponse("* VANISHED (EARLIER) 41,43:116,118,120:211,214:540");
+        content[9] = new IMAPResponse("002 OK [READ-ONLY] EXAMINE completed; now in selected state");
         final ExtensionMailboxInfo minfo = mapper.readValue(content, ExtensionMailboxInfo.class);
 
         // verify the result
@@ -385,6 +388,8 @@ public class ImapResponseMapperTest {
         Assert.assertEquals(minfo.uidvalidity, 1459808247, "uidvalidity mismatched.");
         Assert.assertEquals(minfo.uidnext, 150400, "uidnext mismatched.");
         Assert.assertEquals(minfo.getMailboxId(), "A26", "MailboxId mismatched.");
+        Assert.assertNotNull(minfo.getVanishedResponse(), "VanishedResponse mismatched.");
+        Assert.assertTrue(minfo.getVanishedResponse().isEarlier(), "VanishedResponse mismatched.");
     }
 
     /**
@@ -1468,12 +1473,36 @@ public class ImapResponseMapperTest {
         content[3] = new IMAPResponse("* 4 FETCH (FLAGS (\\Seen) MODSEQ (2531))");
         content[4] = new IMAPResponse("* 5 FETCH (FLAGS (\\Seen) MODSEQ (2648))");
         content[5] = new IMAPResponse("a4 OK Success");
-        final FetchResult fetchResult = mapper.readValue(content, FetchResult.class);
-        final List<FetchResponse> irs = fetchResult.getFetchResponses();
 
         // verify the result
+        final FetchResult fetchResult = mapper.readValue(content, FetchResult.class);
         Assert.assertNotNull(fetchResult, "fetch result mismatched.");
-        Assert.assertEquals(irs.size(), 3, "fetch result mismatched.");
+        Assert.assertEquals(fetchResult.getFetchResponses().size(), 3, "fetch result mismatched.");
+        Assert.assertNull(fetchResult.getVanishedResponse(), "getVanishedResponse() mismatched.");
+    }
+
+    /**
+     * Tests parseFetch method successfully with Vanished.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseFetchOKVanished() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[4];
+        content[0] = new IMAPResponse("* VANISHED (EARLIER) 300:310,405,411");
+        content[1] = new IMAPResponse("* 1 FETCH (UID 404 MODSEQ (65402) FLAGS (\\Seen))");
+        content[2] = new IMAPResponse("* 2 FETCH (UID 406 MODSEQ (75403) FLAGS (\\Deleted))");
+        content[3] = new IMAPResponse("a4 OK Success");
+
+        // verify the result
+        final FetchResult fetchResult = mapper.readValue(content, FetchResult.class);
+        Assert.assertNotNull(fetchResult, "fetch result mismatched.");
+        final List<FetchResponse> irs = fetchResult.getFetchResponses();
+        Assert.assertEquals(irs.size(), 2, "getFetchResponses() mismatched.");
+        Assert.assertNotNull(fetchResult.getVanishedResponse(), "getVanishedResponse() mismatched.");
     }
 
     /**
@@ -1518,5 +1547,97 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(cause, "cause mismatched.");
         Assert.assertEquals(cause.getFaiureType(), FailureType.UNKNOWN_PARSE_RESULT_TYPE, "Failure type mismatched.");
+    }
+
+    /**
+     * Tests parseExpunge method successfully.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseExpungeOK() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[4];
+        content[0] = new IMAPResponse("* 0 EXPUNGE");
+        content[1] = new IMAPResponse("* 1 EXPUNGE");
+        content[2] = new IMAPResponse("* 2 EXPUNGE");
+        content[3] = new IMAPResponse("a4 OK Success");
+        final ExpungeResult expungeResult = mapper.readValue(content, ExpungeResult.class);
+        final List<Integer> expungeNumbers = expungeResult.getExpungeMessageNumberList();
+
+        // verify the result
+        Assert.assertNotNull(expungeNumbers, "Expunge result mismatched.");
+        Assert.assertEquals(expungeNumbers.size(), 3, "getExpungeMessageNumberList() mismatched.");
+        for (Integer i = 0; i < 3; i++) {
+            Assert.assertEquals(expungeNumbers.get(i), i, "getExpungeMessageNumberList() mismatched.");
+        }
+        Assert.assertNull(expungeResult.getVanishedResponse(), "getVanishedResponse() mismatched.");
+    }
+
+    /**
+     * Tests parseExpunge method successfully.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseExpungeVanishedOK() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[2];
+        content[0] = new IMAPResponse("* VANISHED (EARLIER) 41");
+        content[1] = new IMAPResponse("* OK Success.");
+        final ExpungeResult expungeResult = mapper.readValue(content, ExpungeResult.class);
+        final VanishedResponse vanishedResponse = expungeResult.getVanishedResponse();
+
+        // verify the result
+        Assert.assertNotNull(vanishedResponse, "Expunge result mismatched.");
+        Assert.assertTrue(vanishedResponse.isEarlier(), "getVanishedResponse() mismatched.");
+        Assert.assertNull(expungeResult.getExpungeMessageNumberList(), "getExpungeMessageNumberList() mismatched.");
+    }
+
+    /**
+     * Tests parseExpunge method with not OK response.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     */
+    @Test
+    public void testParseExpungeNotOK() throws IOException, ProtocolException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = { new IMAPResponse("002 BAD") }; // make it bad so it does not update mode
+        ImapAsyncClientException cause = null;
+        try {
+            mapper.readValue(content, ExpungeResult.class);
+        } catch (final ImapAsyncClientException e) {
+            cause = e;
+        }
+
+        // verify the result
+        Assert.assertNotNull(cause, "cause mismatched.");
+        Assert.assertEquals(cause.getFaiureType(), FailureType.INVALID_INPUT, "Failure type mismatched.");
+    }
+
+    /**
+     * Tests parseExpunge method with 0 response.
+     *
+     * @throws ProtocolException will not throw
+     */
+    @Test
+    public void testParseExpungeZeroResponse() throws ProtocolException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[0];
+        ImapAsyncClientException cause = null;
+        try {
+            mapper.readValue(content, ExpungeResult.class);
+        } catch (final ImapAsyncClientException e) {
+            cause = e;
+        }
+
+        // verify the result
+        Assert.assertNotNull(cause, "cause mismatched.");
+        Assert.assertEquals(cause.getFaiureType(), FailureType.INVALID_INPUT, "Failure type mismatched.");
     }
 }
