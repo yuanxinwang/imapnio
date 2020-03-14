@@ -23,6 +23,7 @@ import com.sun.mail.imap.protocol.Status;
 import com.yahoo.imapnio.async.data.Capability;
 import com.yahoo.imapnio.async.data.ExpungeResult;
 import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
+import com.yahoo.imapnio.async.data.ExtensionSearchResult;
 import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
 import com.yahoo.imapnio.async.data.ListInfoList;
@@ -1639,5 +1640,30 @@ public class ImapResponseMapperTest {
         // verify the result
         Assert.assertNotNull(cause, "cause mismatched.");
         Assert.assertEquals(cause.getFaiureType(), FailureType.INVALID_INPUT, "Failure type mismatched.");
+    }
+
+    /**
+     * Tests parseExtensionSearch method successfully.
+     *
+     * @throws IOException will not throw
+     * @throws ProtocolException will not throw
+     * @throws ImapAsyncClientException will not throw
+     */
+    @Test
+    public void testParseExtensionSearchOK() throws IOException, ProtocolException, ImapAsyncClientException {
+        final ImapResponseMapper mapper = new ImapResponseMapper();
+        final IMAPResponse[] content = new IMAPResponse[2];
+        content[0] = new IMAPResponse("* ESEARCH (TAG \"A285\") UID MIN 7 MAX 7 COUNT 1 ALL 7 MODSEQ 100");
+        content[1] = new IMAPResponse("a4 OK Success");
+        final ExtensionSearchResult extensionSearchResult = mapper.readValue(content, ExtensionSearchResult.class);
+
+        // verify the result
+        Assert.assertNotNull(extensionSearchResult, "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getMin(), Long.valueOf(7), "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getMax(), Long.valueOf(7), "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getCount(), Long.valueOf(1), "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getAll()[0], new MessageNumberSet(7L, 7L), "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getModSeq(), Long.valueOf(100), "Extension search result mismatched.");
+        Assert.assertEquals(extensionSearchResult.getTag(), "A285");
     }
 }

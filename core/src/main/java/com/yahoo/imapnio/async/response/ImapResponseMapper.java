@@ -27,6 +27,7 @@ import com.sun.mail.imap.protocol.UIDSet;
 import com.yahoo.imapnio.async.data.Capability;
 import com.yahoo.imapnio.async.data.ExpungeResult;
 import com.yahoo.imapnio.async.data.ExtensionMailboxInfo;
+import com.yahoo.imapnio.async.data.ExtensionSearchResult;
 import com.yahoo.imapnio.async.data.FetchResult;
 import com.yahoo.imapnio.async.data.IdResult;
 import com.yahoo.imapnio.async.data.ListInfoList;
@@ -63,8 +64,23 @@ public class ImapResponseMapper {
     /** EXPUNGE keyword. */
     private static final String EXPUNGE = "EXPUNGE";
 
+    /** TAG keyword. */
+    private static final String TAG = "TAG";
+
     /** EQUAL sign. */
     private static final String EQUAL = "=";
+
+    /** MIN keyword. */
+    private static final String MIN = "MIN";
+
+    /** MAX keyword. */
+    private static final String MAX = "MAX";
+
+    /** COUNT keyword. */
+    private static final String COUNT = "COUNT";
+
+    /** ALL keyword. */
+    private static final String ALL = "ALL";
 
     /** [ char. */
     private static final char L_BRACKET = '[';
@@ -134,6 +150,9 @@ public class ImapResponseMapper {
         }
         if (valueType == ExpungeResult.class) {
             return (T) parser.parseToExpungeResult(content);
+        }
+        if (valueType == ExtensionSearchResult.class) {
+            return (T) parser.parseToExtensionSearchResult(content);
         }
 
         throw new ImapAsyncClientException(FailureType.UNKNOWN_PARSE_RESULT_TYPE);
@@ -641,6 +660,62 @@ public class ImapResponseMapper {
             } else {
                 return new ExpungeResult(expungeMessageNumberList, highestModSeq);
             }
+        }
+
+        /**
+         * Parses the responses from Extension Search command to a {@link ExtensionSearchResult} object.
+         *
+         * @param ir the list of responses from Extension Search command, the input responses array should contain the tagged/final one
+         * @return ExtensionSearchResult object constructed based on the given IMAPResponse array,
+         * @throws ImapAsyncClientException when tagged response is bad or given response length is 0 or fail to parse ExtensionSearchResult Response
+         */
+        @Nonnull
+        private ExtensionSearchResult parseToExtensionSearchResult(@Nonnull final IMAPResponse[] ir) throws ImapAsyncClientException {
+            if (ir.length < 1) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+            final Response taggedResponse = ir[ir.length - 1];
+
+            if (!taggedResponse.isOK()) {
+                throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
+            }
+
+            String tag = null;
+            Long min = null;
+            Long max = null;
+            Long count = null;
+            Long modSeq = null;
+            MessageNumberSet[] all = null;
+
+            for (final IMAPResponse sr : ir) {
+                // There *will* be one SEARCH response.
+                if (sr.keyEquals("ESEARCH")) {
+                    sr.skipSpaces();
+                    if (sr.readByte() == L_PAREN &&  TAG.equals(sr.readAtom())) {
+                        sr.skipSpaces();
+                        sr.readByte();
+                        tag = sr.readAtom();
+                        sr.readByte();
+                        sr.readByte();
+                    }
+                    String nextReturn = null;
+                    while ((nextReturn = sr.readAtom()) != null) {
+                        if (MIN.equals(nextReturn)) {
+                            min = sr.readLong();
+                        } else if (MAX.equals(nextReturn)) {
+                            max = sr.readLong();
+                        } else if (COUNT.equals(nextReturn)) {
+                            count = sr.readLong();
+                        } else if (ALL.equals(nextReturn)) {
+                            all = MessageNumberSet.buildMessageNumberSets(sr.readAtom());
+                        } else if (MODSEQ.equals(nextReturn)) {
+                            modSeq = sr.readLong();
+                        }
+                    }
+                }
+            }
+
+            return new ExtensionSearchResult(tag, min, max, all, count, modSeq);
         }
     }
 }

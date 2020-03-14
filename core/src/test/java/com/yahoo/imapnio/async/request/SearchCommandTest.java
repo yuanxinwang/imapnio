@@ -14,8 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.mail.Flags;
+import javax.mail.search.AndTerm;
 import javax.mail.search.BodyTerm;
 import javax.mail.search.FlagTerm;
+import javax.mail.search.NotTerm;
 import javax.mail.search.OrTerm;
 import javax.mail.search.SearchException;
 import javax.mail.search.SubjectTerm;
@@ -232,6 +234,167 @@ public class SearchCommandTest {
         final FlagTerm messageFlagTerms = null;
         final ImapRequest cmd = new SearchCommand(msgsets, messageFlagTerms, null);
         Assert.assertEquals(cmd.getCommandLine(), "SEARCH 1:4\r\n", "Expected result mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with return option, message sequences set.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineReturnOption() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.ALL };
+        final int[] msgNos = { 1, 2, 3 };
+        final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgNos);
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, null, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (ALL) 1:3\r\n", "getCommandLine() mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with all return options, message sequences set.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineReturnOptions() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.ALL, SearchReturnOption.COUNT,
+                SearchReturnOption.MAX, SearchReturnOption.MIN };
+        final int[] msgNos = { 1, 2, 3 };
+        final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgNos);
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, null, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (ALL COUNT MAX MIN) 1:3\r\n", "getCommandLine() mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with repeated return options, message sequences set.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineRepeatReturnOptions() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.MIN, SearchReturnOption.COUNT,
+                SearchReturnOption.MIN, SearchReturnOption.MIN };
+        final int[] msgNos = { 1, 2, 3 };
+        final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgNos);
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, null, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (MIN COUNT MIN MIN) 1:3\r\n", "getCommandLine() mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with return options, message sequences set, and modification sequence.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineReturnOptionsModSeq() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.MIN, SearchReturnOption.COUNT,
+                SearchReturnOption.MIN, SearchReturnOption.MIN };
+        final int[] msgNos = { 1, 2, 3 };
+        final MessageNumberSet[] msgsets = MessageNumberSet.createMessageNumberSets(msgNos);
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, extendedModifiedSinceTerm, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (MIN COUNT MIN MIN) 1:3 MODSEQ 1\r\n", "getCommandLine() mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with return options, string message sequences set.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineReturnOptionsStringMessage() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.MIN, SearchReturnOption.COUNT };
+        final String msgsets = "1,2,3:5";
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, null, null);
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (MIN COUNT) 1,2,3:5\r\n", "getCommandLine() mismatched.");
+
+        cmd.cleanup();
+        // Verify if cleanup happened correctly.
+        for (final Field field : fieldsToCheck) {
+            Assert.assertNull(field.get(cmd), "Cleanup should set " + field.getName() + " as null");
+        }
+    }
+
+    /**
+     * Tests getCommandLine method with return options, string message sequences set, and arguments.
+     *
+     * @throws IOException will not throw
+     * @throws IllegalAccessException will not throw
+     * @throws IllegalArgumentException will not throw
+     * @throws ImapAsyncClientException will not throw
+     * @throws SearchException will not throw
+     */
+    @Test
+    public void testGetCommandLineReturnOptionsArgs() throws IOException, IllegalArgumentException, IllegalAccessException, SearchException,
+            ImapAsyncClientException {
+        final SearchReturnOption[] searchReturnOptions = new SearchReturnOption[] { SearchReturnOption.MIN, SearchReturnOption.COUNT };
+        final String msgsets = "1,2,3:5";
+        final ExtendedSearchSequence searchSeq = new ExtendedSearchSequence();
+        final ExtendedModifiedSinceTerm extendedModifiedSinceTerm = new ExtendedModifiedSinceTerm(1L);
+        final BodyTerm bodyTerm = new BodyTerm("test");
+        final AndTerm andTerm = new AndTerm(bodyTerm, extendedModifiedSinceTerm);
+        final NotTerm notTerm = new NotTerm(andTerm);
+        final Argument args = new Argument();
+        args.append(searchSeq.generateSequence(notTerm));
+        final ImapRequest cmd = new SearchCommand(searchReturnOptions, msgsets, null, args, null);
+
+        Assert.assertEquals(cmd.getCommandLine(), "SEARCH RETURN (MIN COUNT) 1,2,3:5 NOT (BODY test MODSEQ 1)\r\n",
+                "getCommandLine() mismatched.");
 
         cmd.cleanup();
         // Verify if cleanup happened correctly.

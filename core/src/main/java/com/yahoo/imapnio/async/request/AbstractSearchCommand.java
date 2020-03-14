@@ -69,6 +69,9 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
     /** Charset literal following by a space. */
     private static final byte[] CHARSET_B = CHARSET.getBytes(StandardCharsets.US_ASCII);
 
+    /** RETURN. */
+    private static final String RETURN = "RETURN";
+
     /** SEARCH . */
     private static final String SEARCH = "SEARCH";
 
@@ -83,6 +86,9 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
 
     /** Flag whether adding UID before search. */
     private boolean isUid;
+
+    /** Options for search return. */
+    private SearchReturnOption[] options;
 
     /** Message numbers in string type, specified based on RFC3501 sequence-set syntax. */
     private String msgNumbers;
@@ -113,6 +119,23 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
     }
 
     /**
+     * Initializes the object with the MessageNumberSet array, search string and character set name.
+     *
+     * @param isUid whether it is UID Search command
+     * @param options options for search return
+     * @param msgsets the set of MessageNumberSet
+     * @param term the search string
+     * @param capa the capability instance to find if it has literal
+     * @throws ImapAsyncClientException when both msgsets and searchString are null
+     * @throws IOException when parsing error for generate sequence
+     * @throws SearchException when search term cannot be found
+     */
+    protected AbstractSearchCommand(final boolean isUid, @Nullable final SearchReturnOption[] options, @Nullable final MessageNumberSet[]
+            msgsets, @Nullable final SearchTerm term, @Nullable final Capability capa) throws ImapAsyncClientException, SearchException, IOException {
+        this(isUid, options, MessageNumberSet.buildString(msgsets), term, capa);
+    }
+
+    /**
      * Initializes the object with the string form of message sequence, search string and character set name.
      *
      * @param isUid whether it is UID Search command
@@ -125,11 +148,44 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
      */
     protected AbstractSearchCommand(final boolean isUid, @Nullable final String msgNumbers, @Nullable final SearchTerm term,
             @Nullable final Capability capa) throws ImapAsyncClientException, SearchException, IOException {
+        this(isUid, null, msgNumbers, term, capa);
+    }
+
+    /**
+     * Initializes the object with the string form of message sequence, search string and character set name.
+     *
+     * @param isUid whether it is UID Search command
+     * @param msgNumbers the set of MessageNumberSet
+     * @param charset the character set
+     * @param args the argument containing the search term
+     * @param capa the capability instance to find if it has literal
+     * @throws ImapAsyncClientException when both msgsets and searchString are null
+     */
+    protected AbstractSearchCommand(final boolean isUid, @Nullable final String msgNumbers, @Nullable final String charset,
+            @Nonnull final Argument args, @Nullable final Capability capa) throws ImapAsyncClientException {
+        this(isUid, null, msgNumbers, charset, args, capa);
+    }
+
+    /**
+     * Initializes the object with the string form of message sequence, search string and character set name.
+     *
+     * @param isUid whether it is UID Search command
+     * @param options options for search return
+     * @param msgNumbers the set of MessageNumberSet
+     * @param term the search term
+     * @param capa the capability instance to find if it has literal
+     * @throws ImapAsyncClientException when both msgsets and searchString are null
+     * @throws IOException when parsing error for generate sequence
+     * @throws SearchException when search term cannot be found
+     */
+    protected AbstractSearchCommand(final boolean isUid, @Nullable final SearchReturnOption[] options, @Nullable final String msgNumbers,
+            @Nullable final SearchTerm term, @Nullable final Capability capa) throws ImapAsyncClientException, SearchException, IOException {
         // based on [ABNF] above, 1*(SP search-key), cannot have both null
         if (msgNumbers == null && term == null) {
             throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
         }
         this.isUid = isUid;
+        this.options = options;
         this.msgNumbers = msgNumbers;
 
         // maintain same semantic with IMAPProtocol, but we do not retry when fail in various of charsets. we only use UTF_8
@@ -146,20 +202,22 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
      * Initializes the object with the string form of message sequence, search string and character set name.
      *
      * @param isUid whether it is UID Search command
+     * @param options options for search return
      * @param msgNumbers the set of MessageNumberSet
      * @param charset the character set
      * @param args the argument containing the search term
      * @param capa the capability instance to find if it has literal
      * @throws ImapAsyncClientException when both msgsets and searchString are null
      */
-    protected AbstractSearchCommand(final boolean isUid, @Nullable final String msgNumbers, @Nullable final String charset,
-            @Nonnull final Argument args, @Nullable final Capability capa) throws ImapAsyncClientException {
+    protected AbstractSearchCommand(final boolean isUid, @Nullable final SearchReturnOption[] options, @Nullable final String msgNumbers,
+            @Nullable final String charset, @Nonnull final Argument args, @Nullable final Capability capa) throws ImapAsyncClientException {
         // based on [ABNF] above, 1*(SP search-key), cannot have both null
         if (msgNumbers == null && args == null) {
             throw new ImapAsyncClientException(FailureType.INVALID_INPUT);
         }
 
         this.isUid = isUid;
+        this.options = options;
         this.msgNumbers = msgNumbers;
         this.charset = charset;
         this.searchExpr = args;
@@ -168,6 +226,7 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
 
     @Override
     public void cleanup() {
+        this.options = null;
         this.msgNumbers = null;
         this.searchExpr = null;
         this.charset = null;
@@ -175,30 +234,55 @@ public abstract class AbstractSearchCommand extends ImapRequestAdapter {
 
     @Override
     public ByteBuf getCommandLineBytes() throws ImapAsyncClientException {
-        final ByteBuf sb = Unpooled.buffer();
-        sb.writeBytes(isUid ? UID_SEARCH_B : SEARCH_B);
+        final StringBuilder sb = new StringBuilder();
+        int optionsSize = 0;
+        if (options != null) {
+            sb.append(ImapClientConstants.SPACE);
+            sb.append(RETURN);
+            sb.append(ImapClientConstants.SPACE);
+            sb.append(ImapClientConstants.L_PAREN);
+            sb.append(options[0].name());
+            for (int i = 1; i < options.length; i++) {
+                sb.append(ImapClientConstants.SPACE);
+                sb.append(options[i].name());
+            }
+
+            sb.append(ImapClientConstants.R_PAREN);
+            optionsSize = sb.length();
+        }
+
+        final int charsetSize = charset != null ? charset.length() : 0;
+        final int msgNumbersSize = msgNumbers != null ? msgNumbers.length() : 0;
+        final int searchExprSize = searchExpr != null ? searchExpr.toString().length() : 0;
+        final int len = ImapClientConstants.PAD_LEN  + optionsSize + charsetSize + msgNumbersSize + searchExprSize;
+        final ByteBuf byteBuf = Unpooled.buffer(len);
+        byteBuf.writeBytes(isUid ? UID_SEARCH_B : SEARCH_B);
+
+        if (optionsSize > 0) {
+            byteBuf.writeBytes(sb.toString().getBytes(StandardCharsets.US_ASCII));
+        }
 
         if (charset != null) {
-            sb.writeByte(ImapClientConstants.SPACE);
-            sb.writeBytes(CHARSET_B);
-            sb.writeByte(ImapClientConstants.SPACE);
-            sb.writeBytes(charset.getBytes(StandardCharsets.US_ASCII));
+            byteBuf.writeByte(ImapClientConstants.SPACE);
+            byteBuf.writeBytes(CHARSET_B);
+            byteBuf.writeByte(ImapClientConstants.SPACE);
+            byteBuf.writeBytes(charset.getBytes(StandardCharsets.US_ASCII));
         }
 
         if (msgNumbers != null) {
-            sb.writeByte(ImapClientConstants.SPACE);
-            sb.writeBytes(msgNumbers.getBytes(StandardCharsets.US_ASCII));
+            byteBuf.writeByte(ImapClientConstants.SPACE);
+            byteBuf.writeBytes(msgNumbers.getBytes(StandardCharsets.US_ASCII));
         }
 
         if (searchExpr != null) {
-            sb.writeByte(ImapClientConstants.SPACE);
+            byteBuf.writeByte(ImapClientConstants.SPACE);
             try {
-                searchExpr.write(new ByteBufWriter(sb, isLiteralPlusEnabled));
+                searchExpr.write(new ByteBufWriter(byteBuf, isLiteralPlusEnabled));
             } catch (final IOException | ProtocolException e) {
                 throw new ImapAsyncClientException(FailureType.INVALID_INPUT, e);
             }
         }
-        sb.writeBytes(CRLF_B);
-        return sb;
+        byteBuf.writeBytes(CRLF_B);
+        return byteBuf;
     }
 }

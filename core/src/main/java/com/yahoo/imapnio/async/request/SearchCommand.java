@@ -61,6 +61,53 @@ public class SearchCommand extends AbstractSearchCommand {
         super(false, msgNumbers, charset, args, capa);
     }
 
+    /**
+     * Initializes a {@link SearchCommand} with search return options, the MessageNumberSet array, search string and character set name.
+     *
+     * @param options options for search return
+     * @param msgsets the set of MessageNumberSet
+     * @param term the search term
+     * @param capa the capability instance to check if it has literal
+     * @throws ImapAsyncClientException when both msgsets and searchString are null
+     * @throws IOException when parsing error for generate sequence
+     * @throws SearchException when search term cannot be found
+     */
+    public SearchCommand(@Nullable final SearchReturnOption[] options, @Nullable final MessageNumberSet[] msgsets, @Nullable final SearchTerm term,
+                         @Nullable final Capability capa) throws ImapAsyncClientException, SearchException, IOException {
+        super(false, options, msgsets, term, capa);
+    }
+
+    /**
+     * Initializes this object with search return options, the string form of message sequence, search string and character set name.
+     *
+     * @param options options for search return
+     * @param msgNumbers the string type message numbers in sequence-set syntax
+     * @param term the search term
+     * @param capa the capability instance to check if it has literal
+     * @throws ImapAsyncClientException when both msgNumber and searchString are null
+     * @throws IOException when parsing error for generate sequence
+     * @throws SearchException when search term cannot be found
+     */
+    public SearchCommand(@Nullable final SearchReturnOption[] options, @Nullable final String msgNumbers, @Nullable final SearchTerm term,
+                         @Nullable final Capability capa) throws ImapAsyncClientException, SearchException, IOException {
+        super(false, options, msgNumbers, term, capa);
+    }
+
+    /**
+     * Initializes this object with search return options, the string form of message sequence, character set name, and Argument that expresses the
+     * search term.
+     *
+     * @param options options for search return
+     * @param msgNumbers the string form message numbers in sequence-set syntax
+     * @param charset the character set
+     * @param args the search term in argument format
+     * @param capa the capability instance to check if it has literal
+     * @throws ImapAsyncClientException when both msgNumber and searchString are null
+     */
+    public SearchCommand(@Nullable final SearchReturnOption[] options, @Nullable final String msgNumbers, @Nullable final String charset,
+                         @Nonnull final Argument args, @Nullable final Capability capa) throws ImapAsyncClientException {
+        super(false, options, msgNumbers, charset, args, capa);
+    }
     @Override
     public ImapCommandType getCommandType() {
         return ImapCommandType.SEARCH;
